@@ -26,6 +26,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/register").permitAll()
                         // 允许GET请求访问测试接口
                         .requestMatchers("/hello").permitAll()
+                        .requestMatchers("/api/user/login").permitAll()
                         // 其他所有请求需要认证
                         .anyRequest().authenticated()
                 );
