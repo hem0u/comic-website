@@ -11,8 +11,8 @@ const request = axios.create({
 // 请求拦截器：添加token到请求头
 request.interceptors.request.use(
     (config) => {
+        // 在这里调用 useUserStore
         const userStore = useUserStore();
-        // 如果有token，添加到Authorization头
         if (userStore.token) {
             config.headers.Authorization = `Bearer ${userStore.token}`;
         }

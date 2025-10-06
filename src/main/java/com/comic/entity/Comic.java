@@ -17,4 +17,5 @@ public class Comic {
     private Integer collectCount;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+
 }

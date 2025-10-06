@@ -43,21 +43,32 @@
         </where>
     </select>
 
-    <select id="listByCondition" resultType="com.comic.entity.Comic">
-        SELECT * FROM t_comic
+    <select id="listByCondition" resultType="com.comic.vo.ComicVO">
+        SELECT
+        c.id,
+        c.title,
+        c.cover,
+        u.nickname as authorName,  <!-- 直接查作者昵称 -->
+        cat.name as categoryName,  <!-- 直接查分类名称 -->
+        c.status,
+        c.view_count as viewCount,
+        c.collect_count as collectCount,
+        c.create_time as createTime
+        FROM t_comic c
+        LEFT JOIN t_user u ON c.author_id = u.id  <!-- 关联用户表 -->
+        LEFT JOIN t_category cat ON c.category_id = cat.id  <!-- 关联分类表 -->
         <where>
-            <!-- 关键修改：通过 queryDTO 获取 keyword -->
             <if test="queryDTO.keyword != null and queryDTO.keyword != ''">
-                AND (title LIKE CONCAT('%', #{queryDTO.keyword}, '%')
-                OR author_id IN (SELECT id FROM t_user WHERE username LIKE CONCAT('%', #{queryDTO.keyword}, '%')))
+                AND (c.title LIKE CONCAT('%', #{queryDTO.keyword}, '%')
+                OR u.username LIKE CONCAT('%', #{queryDTO.keyword}, '%'))
             </if>
-            <!-- 关键修改：通过 queryDTO 获取 categoryId -->
             <if test="queryDTO.categoryId != null">
-                AND category_id = #{queryDTO.categoryId}
+                AND c.category_id = #{queryDTO.categoryId}
             </if>
         </where>
-        ORDER BY create_time DESC
-        <!-- offset 和 size 已通过 @Param 命名，可直接引用 -->
+        ORDER BY c.create_time DESC
         LIMIT #{offset}, #{size}
     </select>
+
+
 </mapper>

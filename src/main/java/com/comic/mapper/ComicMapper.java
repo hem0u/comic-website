@@ -2,6 +2,7 @@ package com.comic.mapper;
 
 import com.comic.dto.ComicQueryDTO;
 import com.comic.entity.Comic;
+import com.comic.vo.ComicVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,9 +25,11 @@ public interface ComicMapper {
     Integer countByCondition(ComicQueryDTO queryDTO);
 
     // 关键修改：添加 @Param 注解指定参数名
-    List<Comic> listByCondition(
+    List<ComicVO> listByCondition(
             @Param("queryDTO") ComicQueryDTO queryDTO,  // 命名为 queryDTO
             @Param("offset") Integer offset,            // 命名为 offset
             @Param("size") Integer size                 // 命名为 size
     );
+
+
 }

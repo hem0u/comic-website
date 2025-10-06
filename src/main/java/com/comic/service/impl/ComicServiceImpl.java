@@ -36,90 +36,72 @@ public class ComicServiceImpl implements ComicService {
     private CategoryMapper categoryMapper;
 
     @Resource
-    private ImageMapper imageMapper;  // 注入图片Mapper
+    private ImageMapper imageMapper;
 
     @Resource
     private ChapterService chapterService;
 
     @Override
     public ResultVO<ComicVO> createComic(ComicCreateDTO comicDTO, String username) {
-        // 1. 查询当前用户信息（获取用户ID）
+        // 保持原有逻辑不变
         User user = userMapper.selectByUsername(username);
         if (user == null) {
             return ResultVO.error("用户不存在");
         }
 
-        // 2. 验证分类是否存在
         Category category = categoryMapper.selectById(comicDTO.getCategoryId());
         if (category == null) {
             return ResultVO.error("分类不存在");
         }
 
-        // 3. 转换DTO为实体类并保存
         Comic comic = new Comic();
         BeanUtils.copyProperties(comicDTO, comic);
-        comic.setAuthorId(user.getId());  // 设置作者ID
-        comic.setIsApproved((byte) 0);  // 默认待审核
+        comic.setAuthorId(user.getId());
+        comic.setIsApproved((byte) 0);
         comic.setViewCount(0);
         comic.setCollectCount(0);
 
         comicMapper.insert(comic);
 
-        // 4. 转换为VO返回
         ComicVO comicVO = new ComicVO();
         BeanUtils.copyProperties(comic, comicVO);
-        comicVO.setAuthorName(user.getNickname());  // 作者昵称
-        comicVO.setCategoryName(category.getName());  // 分类名称
+        comicVO.setAuthorName(user.getNickname());
+        comicVO.setCategoryName(category.getName());
 
         return ResultVO.success(comicVO);
     }
 
     @Override
     public ResultVO<ComicVO> getComicById(Long id) {
-        // 1. 查询漫画信息
+        // 保持原有逻辑不变
         Comic comic = comicMapper.selectById(id);
         if (comic == null) {
             return ResultVO.error("漫画不存在");
         }
 
-        // 2. 查询作者和分类信息
         User author = userMapper.selectById(comic.getAuthorId());
         Category category = categoryMapper.selectById(comic.getCategoryId());
 
-        // 3. 封装VO
         ComicVO comicVO = new ComicVO();
         BeanUtils.copyProperties(comic, comicVO);
 
-        // 处理作者信息（添加非空判断）
-        if (author != null) {
-            comicVO.setAuthorName(author.getNickname());
-        } else {
-            comicVO.setAuthorName("未知作者"); // 或空字符串，根据业务需求处理
-        }
-
-        // 处理分类信息（建议同样添加非空判断）
-        if (category != null) {
-            comicVO.setCategoryName(category.getName());
-        } else {
-            comicVO.setCategoryName("未知分类");
-        }
+        comicVO.setAuthorName(author != null ? author.getNickname() : "未知作者");
+        comicVO.setCategoryName(category != null ? category.getName() : "未知分类");
 
         return ResultVO.success(comicVO);
     }
 
     @Override
     public ResultVO<ComicVO> getComicDetail(Long id) {
-        // 1. 查询漫画基本信息
+        // 保持原有逻辑不变
         Comic comic = comicMapper.selectById(id);
         if (comic == null) {
             return ResultVO.error("漫画不存在");
         }
 
-        // 2. 查询作者和分类信息
         User author = userMapper.selectById(comic.getAuthorId());
         Category category = categoryMapper.selectById(comic.getCategoryId());
 
-        // 3. 封装漫画VO
         ComicVO comicVO = new ComicVO();
         comicVO.setId(comic.getId());
         comicVO.setTitle(comic.getTitle());
@@ -132,14 +114,12 @@ public class ComicServiceImpl implements ComicService {
         comicVO.setCollectCount(comic.getCollectCount());
         comicVO.setCreateTime(comic.getCreateTime());
 
-        // 4. 查询章节列表（假设ChapterService有获取章节的方法）
         List<ChapterVO> chapters = chapterService.getChaptersByComicId(id);
         comicVO.setChapters(chapters);
 
-        // 5. 遍历章节，查询每个章节的图片
         for (ChapterVO chapter : chapters) {
             List<Image> images = imageMapper.selectByChapterId(chapter.getId());
-            chapter.setImages(images);  // 假设ChapterVO有images字段
+            chapter.setImages(images);
         }
 
         return ResultVO.success(comicVO);
@@ -147,28 +127,17 @@ public class ComicServiceImpl implements ComicService {
 
     @Override
     public ResultVO<PageVO<ComicVO>> listComics(ComicQueryDTO queryDTO) {
-        // 1. 计算分页参数
         Integer page = queryDTO.getPage();
         Integer size = queryDTO.getSize();
         Integer offset = (page - 1) * size;
 
-        // 2. 查询符合条件的漫画总数
+        // 查询总数（保持不变）
         Integer total = comicMapper.countByCondition(queryDTO);
 
-        // 3. 查询漫画列表（带分页）
-        List<Comic> comics = comicMapper.listByCondition(queryDTO, offset, size);
+        // 直接查询 ComicVO 列表（SQL 已关联查询）
+        List<ComicVO> comicVOList = comicMapper.listByCondition(queryDTO, offset, size);
 
-        // 4. 转换为VO列表
-        List<ComicVO> comicVOList = comics.stream().map(comic -> {
-            ComicVO vo = new ComicVO();
-            vo.setId(comic.getId());
-            vo.setTitle(comic.getTitle());
-            vo.setCover(comic.getCover());
-            // 补充作者、分类等信息（可通过Mapper关联查询优化）
-            return vo;
-        }).collect(Collectors.toList());
-
-        // 5. 封装分页结果
+        // 封装分页结果
         PageVO<ComicVO> pageVO = new PageVO<>();
         pageVO.setTotal(total);
         pageVO.setPage(page);
