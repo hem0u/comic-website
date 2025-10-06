@@ -11,4 +11,7 @@ public interface ReadHistoryMapper {
 
     // 查询用户阅读历史列表
     List<ReadHistory> selectByUserId(Long userId);
+
+    // 新增：查询“用户-漫画-章节”是否已存在
+    ReadHistory findByUserComicChapter(Long userId, Long comicId, Long chapterId);
 }

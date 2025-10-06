@@ -24,7 +24,16 @@ public class ReadHistoryServiceImpl implements ReadHistoryService {
             return ResultVO.error("用户不存在");
         }
 
-        // 新增阅读历史
+        // 新增：检查“用户-漫画-章节”是否已存在
+        ReadHistory existing = historyMapper.findByUserComicChapter(
+                user.getId(), comicId, chapterId
+        );
+        if (existing != null) {
+            // 若已存在，可直接返回“已记录”（或更新时间等操作）
+            return ResultVO.success("阅读历史已记录");
+        }
+
+        // 新增阅读历史（仅当记录不存在时插入）
         ReadHistory history = new ReadHistory();
         history.setUserId(user.getId());
         history.setComicId(comicId);

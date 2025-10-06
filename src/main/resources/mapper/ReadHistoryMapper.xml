@@ -12,4 +12,12 @@
         SELECT * FROM t_read_history
         WHERE user_id = #{userId} ORDER BY read_time DESC
     </select>
+
+    <!-- 新增：查询“用户-漫画-章节”是否存在 -->
+    <select id="findByUserComicChapter" resultType="com.comic.entity.ReadHistory">
+        SELECT * FROM t_read_history
+        WHERE user_id = #{userId}
+          AND comic_id = #{comicId}
+          AND chapter_id = #{chapterId}
+    </select>
 </mapper>
