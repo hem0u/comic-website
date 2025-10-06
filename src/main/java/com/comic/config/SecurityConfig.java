@@ -4,6 +4,7 @@ import com.comic.security.JwtAuthenticationFilter;
 import jakarta.annotation.Resource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,6 +33,8 @@ public class SecurityConfig {
                         // 允许GET请求访问测试接口
                         .requestMatchers("/hello").permitAll()
                         .requestMatchers("/api/user/login").permitAll()
+                        // 允许 /api/collect/** 的 POST 请求通过
+                        .requestMatchers("/api/collect/**").permitAll()
                         // 其他所有请求需要认证
                         .anyRequest().authenticated()
                 )
