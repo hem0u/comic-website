@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.comic.mapper.ImageMapper">
+    <insert id="insert" parameterType="com.comic.entity.Image" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_image (chapter_id, url, sort)
+        VALUES (#{chapterId}, #{url}, #{sort})
+    </insert>
+
+    <select id="selectByChapterId" parameterType="Long" resultType="com.comic.entity.Image">
+        SELECT * FROM t_image WHERE chapter_id = #{chapterId} ORDER BY sort ASC
+    </select>
+</mapper>

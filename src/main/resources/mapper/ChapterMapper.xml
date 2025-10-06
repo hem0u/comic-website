@@ -11,4 +11,8 @@
     <select id="selectByComicId" parameterType="Long" resultType="com.comic.entity.Chapter">
         SELECT * FROM t_chapter WHERE comic_id = #{comicId} ORDER BY sort ASC
     </select>
+
+    <select id="selectById" parameterType="Long" resultType="com.comic.entity.Chapter">
+        SELECT * FROM t_chapter WHERE id = #{id}
+    </select>
 </mapper>

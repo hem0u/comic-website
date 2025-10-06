@@ -14,7 +14,12 @@
     </insert>
 
     <select id="selectById" parameterType="Long" resultType="com.comic.entity.Comic">
-        SELECT * FROM t_comic WHERE id = #{id}
+        SELECT
+            id, title, author_id, cover, description,
+            category_id, status, is_approved,
+            view_count, collect_count, create_time, update_time
+        FROM t_comic
+        WHERE id = #{id}
     </select>
 
     <select id="selectByAuthorId" parameterType="Long" resultType="com.comic.entity.Comic">

@@ -58,7 +58,7 @@ public class ComicServiceImpl implements ComicService {
 
         return ResultVO.success(comicVO);
     }
-    
+
     @Override
     public ResultVO<ComicVO> getComicById(Long id) {
         // 1. 查询漫画信息

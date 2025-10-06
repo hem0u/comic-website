@@ -11,4 +11,7 @@ public interface ChapterMapper {
 
     // 根据漫画ID查询章节列表（按顺序）
     List<Chapter> selectByComicId(Long comicId);
+
+    // 根据ID查询章节
+    Chapter selectById(Long id);
 }
