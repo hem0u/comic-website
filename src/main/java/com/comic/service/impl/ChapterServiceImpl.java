@@ -10,10 +10,14 @@ import com.comic.mapper.ComicMapper;
 import com.comic.mapper.ImageMapper;
 import com.comic.mapper.UserMapper;
 import com.comic.service.ChapterService;
+import com.comic.vo.ChapterVO;
 import com.comic.vo.ResultVO;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ChapterServiceImpl implements ChapterService {
@@ -29,6 +33,19 @@ public class ChapterServiceImpl implements ChapterService {
 
     @Resource
     private ImageMapper imageMapper;
+
+    @Override
+    public List<ChapterVO> getChaptersByComicId(Long comicId) {
+        // 1. 调用Mapper查询该漫画下的所有章节（按sort排序）
+        List<Chapter> chapters = chapterMapper.selectByComicId(comicId);
+
+        // 2. 转换为VO（只返回前端需要的字段）
+        return chapters.stream().map(chapter -> {
+            ChapterVO chapterVO = new ChapterVO();
+            BeanUtils.copyProperties(chapter, chapterVO);  // 复制同名属性
+            return chapterVO;
+        }).collect(Collectors.toList());
+    }
 
     @Override
     public ResultVO createChapter(ChapterCreateDTO chapterDTO, String username) {

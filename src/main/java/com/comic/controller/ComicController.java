@@ -1,6 +1,7 @@
 package com.comic.controller;
 
 import com.comic.dto.ComicCreateDTO;
+import com.comic.dto.ComicQueryDTO;
 import com.comic.service.ComicService;
 import com.comic.vo.ResultVO;
 import jakarta.annotation.Resource;
@@ -31,5 +32,15 @@ public class ComicController {
     @GetMapping("/{id}")
     public ResultVO getComicById(@PathVariable Long id) {
         return comicService.getComicById(id);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResultVO getComicDetail(@PathVariable Long id) {
+        return comicService.getComicDetail(id);
+    }
+
+    @GetMapping("/list")
+    public ResultVO listComics(ComicQueryDTO queryDTO) {
+        return comicService.listComics(queryDTO);
     }
 }
