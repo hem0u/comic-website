@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.comic.mapper.ChapterMapper">
+    <insert id="insert" parameterType="com.comic.entity.Chapter" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_chapter (comic_id, title, sort)
+        VALUES (#{comicId}, #{title}, #{sort})
+    </insert>
+
+    <select id="selectByComicId" parameterType="Long" resultType="com.comic.entity.Chapter">
+        SELECT * FROM t_chapter WHERE comic_id = #{comicId} ORDER BY sort ASC
+    </select>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.comic.mapper.ComicMapper">
+    <insert id="insert" parameterType="com.comic.entity.Comic" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_comic (
+            title, author_id, cover, description, category_id,
+            status, is_approved, view_count, collect_count
+        ) VALUES (
+                     #{title}, #{authorId}, #{cover}, #{description}, #{categoryId},
+                     #{status}, #{isApproved}, #{viewCount}, #{collectCount}
+                 )
+    </insert>
+
+    <select id="selectById" parameterType="Long" resultType="com.comic.entity.Comic">
+        SELECT * FROM t_comic WHERE id = #{id}
+    </select>
+
+    <select id="selectByAuthorId" parameterType="Long" resultType="com.comic.entity.Comic">
+        SELECT * FROM t_comic WHERE author_id = #{authorId} ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByCategoryId" parameterType="Integer" resultType="com.comic.entity.Comic">
+        SELECT * FROM t_comic WHERE category_id = #{categoryId} AND is_approved = 1
+        ORDER BY view_count DESC
+    </select>
+</mapper>
