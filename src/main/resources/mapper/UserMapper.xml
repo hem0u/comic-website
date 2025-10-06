@@ -15,4 +15,8 @@
         INSERT INTO t_user (username, password, nickname, email, avatar, role, status)
         VALUES (#{username}, #{password}, #{nickname}, #{email}, #{avatar}, #{role}, #{status})
     </insert>
+
+    <select id="selectById" parameterType="Long" resultType="com.comic.entity.User">
+        SELECT * FROM t_user WHERE id = #{id}
+    </select>
 </mapper>

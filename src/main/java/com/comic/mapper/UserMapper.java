@@ -10,4 +10,7 @@ public interface UserMapper {
 
     // 新增用户（注册时用）
     int insert(User user);
+
+    // 根据ID查询用户
+    User selectById(Long id);
 }
