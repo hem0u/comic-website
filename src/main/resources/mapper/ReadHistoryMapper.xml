@@ -20,4 +20,23 @@
           AND comic_id = #{comicId}
           AND chapter_id = #{chapterId}
     </select>
+
+    <!-- 用户阅读历史查询 -->
+    <!-- 目标：让历史列表返回前端需要的字段（comicId, comicTitle等） -->
+    <select id="selectUserHistories" resultType="com.comic.vo.HistoryVO">
+        SELECT
+        h.id as historyId,         <!-- 历史记录ID -->
+        c.id as comicId,           <!-- 漫画ID，前端用item.comicId -->
+        c.title as comicTitle,     <!-- 漫画标题，前端用item.comicTitle -->
+        c.cover,                   <!-- 封面图，前端用item.cover -->
+        ch.title as chapterTitle,  <!-- 章节名，前端用item.chapterTitle -->
+        h.read_time as readTime    <!-- 阅读时间，前端用item.readTime -->
+        FROM t_read_history h
+        <!-- 关键：必须关联漫画表，才能获取漫画信息 -->
+        INNER JOIN t_comic c ON h.comic_id = c.id
+        LEFT JOIN t_chapter ch ON h.chapter_id = ch.id  <!-- 关联章节表 -->
+        WHERE h.user_id = #{userId}  <!-- 当前登录用户的ID -->
+        ORDER BY h.read_time DESC
+    </select>
+
 </mapper>

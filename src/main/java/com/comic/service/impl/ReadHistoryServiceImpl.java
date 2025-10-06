@@ -5,9 +5,12 @@ import com.comic.entity.User;
 import com.comic.mapper.ReadHistoryMapper;
 import com.comic.mapper.UserMapper;
 import com.comic.service.ReadHistoryService;
+import com.comic.vo.HistoryVO;
 import com.comic.vo.ResultVO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class ReadHistoryServiceImpl implements ReadHistoryService {
@@ -45,11 +48,20 @@ public class ReadHistoryServiceImpl implements ReadHistoryService {
 
     @Override
     public ResultVO getUserReadHistories(String username) {
-        User user = userMapper.selectByUsername(username);
-        if (user == null) {
-            return ResultVO.error("用户不存在");
-        }
+        try {
+            // 获取当前用户ID
+            User user = userMapper.selectByUsername(username);
+            if (user == null) {
+                return ResultVO.error("用户不存在");
+            }
 
-        return ResultVO.success(historyMapper.selectByUserId(user.getId()));
+            // 查询用户阅读历史（已关联漫画和章节信息）
+            List<HistoryVO> histories = historyMapper.selectUserHistories(user.getId());
+            return ResultVO.success(histories);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResultVO.error("获取阅读历史失败");
+        }
     }
+    
 }

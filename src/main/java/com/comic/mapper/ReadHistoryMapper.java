@@ -1,6 +1,7 @@
 package com.comic.mapper;
 
 import com.comic.entity.ReadHistory;
+import com.comic.vo.HistoryVO;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
@@ -14,4 +15,6 @@ public interface ReadHistoryMapper {
 
     // 新增：查询“用户-漫画-章节”是否已存在
     ReadHistory findByUserComicChapter(Long userId, Long comicId, Long chapterId);
+
+    List<HistoryVO> selectUserHistories(Long id);
 }

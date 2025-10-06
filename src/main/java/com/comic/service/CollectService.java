@@ -14,4 +14,5 @@ public interface CollectService {
 
     // 获取用户收藏列表
     ResultVO getUserCollects(String username);
+
 }

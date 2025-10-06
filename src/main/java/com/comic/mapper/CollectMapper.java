@@ -1,6 +1,7 @@
 package com.comic.mapper;
 
 import com.comic.entity.Collect;
+import com.comic.vo.ComicVO;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
@@ -17,4 +18,8 @@ public interface CollectMapper {
 
     // 查询用户收藏的漫画列表
     List<Collect> selectByUserId(Long userId);
+
+    List<ComicVO> selectUserCollects(Long id);
+
+    void deleteByUserIdAndComicId(Long id, Long comicId);
 }

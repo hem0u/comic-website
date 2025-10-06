@@ -22,4 +22,21 @@
         SELECT * FROM t_collect
         WHERE user_id = #{userId} ORDER BY create_time DESC
     </select>
+
+    <!-- 目标：让收藏列表返回与漫画列表一致的字段（id, title, cover等） -->
+    <select id="selectUserCollects" resultType="com.comic.vo.ComicVO">
+        SELECT
+        c.id,                  <!-- 漫画ID，前端用comic.id -->
+        c.title,               <!-- 漫画标题，前端用comic.title -->
+        c.cover,               <!-- 封面图，前端用comic.cover -->
+        u.nickname as authorName,  <!-- 作者名，前端用comic.authorName -->
+        cat.name as categoryName   <!-- 分类名，前端用comic.categoryName -->
+        FROM t_collect col
+        <!-- 关键：必须关联漫画表，才能获取漫画信息 -->
+        INNER JOIN t_comic c ON col.comic_id = c.id
+        LEFT JOIN t_user u ON c.author_id = u.id    <!-- 关联作者表 -->
+        LEFT JOIN t_category cat ON c.category_id = cat.id  <!-- 关联分类表 -->
+        WHERE col.user_id = #{userId}  <!-- 当前登录用户的ID -->
+        ORDER BY col.create_time DESC
+    </select>
 </mapper>
