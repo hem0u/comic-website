@@ -72,12 +72,13 @@
           >
             注册
           </el-button>
-          <div class="help-link">
-            <el-link href="#" @click.prevent="goToLogin" class="help-link-text">
-              已有账号？去登录
-            </el-link>
-          </div>
         </el-form-item>
+        <!-- 帮助链接 -->
+        <div class="help-link" style="text-align: center;">
+          <el-link href="#" @click.prevent="goToLogin" class="help-link-text">
+            已有账号？去登录
+          </el-link>
+        </div>
       </el-form>
         
         <!-- 条款与隐私 -->
@@ -316,23 +317,16 @@ const handleRegister = async () => {
     color: #ffffff !important;
   }
 
-  /* 底部链接样式 */
+  /* 底部链接样式 - 与登录页保持一致 */
   .help-link {
     margin-top: 14px;
     font-size: 13px;
-    text-align: center;
-    width: 100%;
-    display: flex;
-    justify-content: center;
   }
   .help-link-text {
     color: #333 !important;
     font-weight: 600 !important;
     --el-link-text-color: #333 !important;
     --el-link-hover-text-color: #333 !important;
-    --el-link-underline-height: 1px !important;
-    text-underline-offset: 0px !important;
-    text-align: center !important;
   }
   .terms {
     margin-top: 20px;
