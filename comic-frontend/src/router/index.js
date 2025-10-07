@@ -5,7 +5,7 @@ import { useUserStore } from '../stores/userStore'
 const routes = [
     {
         path: '/',
-        redirect: '/comic-list'  // 根路径重定向到漫画列表
+        redirect: '/home'  // 根路径重定向到首页
     },
     {
         path: '/login',
@@ -24,6 +24,13 @@ const routes = [
         name: 'ComicList',
         component: () => import('../views/ComicList.vue'),
         meta: { requireAuth: false }  // 漫画列表不需要登录
+    },
+    // 在现有路由规则中添加
+    {
+        path: '/home',
+        name: 'Home',
+        component: () => import('../views/Home.vue'),
+        meta: { requireAuth: false }  // 首页不需要登录
     },
     {
         path: '/comic-read/:id',
