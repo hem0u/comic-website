@@ -171,7 +171,7 @@ const handleLogin = async () => {
   try {
     const res = await login(loginForm.value);
     userStore.setUserInfo(res.data.token, res.data.username);
-    router.push('/user-center');
+    router.push('/home');
   } catch (error) {
     ElMessage.error(error.response?.data?.msg || '登录失败，请稍后重试');
     console.error('登录失败：', error);
@@ -208,6 +208,7 @@ html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  padding-bottom: 90px; /* 通过底部填充使内容向上移动20px */
 }
 
 /* 背景图容器 */
