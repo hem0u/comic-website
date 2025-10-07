@@ -11,13 +11,13 @@ const routes = [
         path: '/login',
         name: 'Login',
         component: () => import('../views/Login.vue'),
-        meta: { requireAuth: false }  // 不需要登录
+        meta: { requireAuth: false, hideNav: true }  // 不需要登录，隐藏导航
     },
     {
         path: '/register',
         name: 'Register',
         component: () => import('../views/Register.vue'),
-        meta: { requireAuth: false }
+        meta: { requireAuth: false, hideNav: true }  // 隐藏导航
     },
     {
         path: '/comic-list',

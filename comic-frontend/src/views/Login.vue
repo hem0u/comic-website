@@ -1,7 +1,5 @@
 <template>
   <div class="login-page">
-    <!-- 左侧背景图容器 -->
-    <div class="side-bg side-bg-left"></div>
     <!-- 中间登录核心内容 -->
     <div class="login-container">
       <!-- 品牌标识 -->
@@ -99,8 +97,6 @@
         </p>
       </div>
     </div>
-    <!-- 右侧背景图容器 -->
-    <div class="side-bg side-bg-right"></div>
   </div>
 </template>
 
@@ -202,42 +198,39 @@ html, body {
 
 /* 外层容器，继承根元素高度，确保内部元素高度可控 */
 .login-page {
-  height: 100% !important; /* 继承 body 的 100% 高度 */
+  height: 100vh !important;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 120px;
+  align-items: center;
   background: #fff;
   min-width: 1200px;
-  overflow: hidden !important; /* 强制隐藏自身滚动条 */
+  overflow: hidden !important;
   margin: 0;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
-/* 背景图容器，高度为外层容器高度减去顶部内边距 */
+/* 背景图容器 */
 .side-bg {
   width: 30%;
-  height: calc(100% - 120px) !important; /* 高度适配外层容器 */
+  height: 100% !important;
   background-size: 60% auto;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: transparent;
-  overflow: hidden !important; /* 隐藏自身溢出内容 */
+  background-color: #fff;
+  overflow: hidden !important;
   flex-shrink: 0;
 }
 
-/* 中间登录容器，高度为外层容器高度减去上下预留空间 */
+/* 中间登录容器 */
 .login-container {
-  width: 40%;
+  width: 100%;
   max-width: 400px;
   padding: 24px;
   text-align: center;
   background-color: #fff;
-  max-height: calc(100% - 140px) !important; /* 高度适配外层容器 */
-  overflow: hidden !important; /* 隐藏自身溢出内容 */
-  flex-shrink: 0;
+  max-height: 100%;
+  overflow: hidden !important;
   box-sizing: border-box;
 }
 
