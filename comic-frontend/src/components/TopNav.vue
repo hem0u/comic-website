@@ -1,8 +1,7 @@
 <template>
   <header class="top-nav">
-    <!-- 顶部导航导航内容容器 -->
     <div class="top-nav-inner">
-      <!-- 菜单按钮：侧边栏打开时隐藏 -->
+      <!-- 菜单按钮 -->
       <button
           class="menu-toggle"
           @click="onMenuClick"
@@ -11,13 +10,13 @@
         <span class="menu-symbol">☰</span>
       </button>
 
-      <!-- 网站标识：侧边栏打开时隐藏 -->
+      <!-- 网站标识 -->
       <div class="logo" :class="{ 'hidden': sidebarOpen }">
         <img src="../assets/vue.svg" alt="漫画世界logo" class="logo-img">
         <span class="logo-text">漫画世界</span>
       </div>
 
-      <!-- 右侧功能区：包含搜索框和用户图标 -->
+      <!-- 右侧功能区：搜索框 + 用户图标 -->
       <div class="right-actions">
         <!-- 搜索框 -->
         <div class="search-container">
@@ -74,7 +73,7 @@ const handleUserClick = () => {
   left: 0;
   right: 0;
   height: 64px;
-  background-color: #fff;
+  background-color: #fff; /* 白色背景 */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 90;
 }
@@ -87,14 +86,13 @@ const handleUserClick = () => {
   padding: 0 15px;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 主轴两端对齐 */
 }
 
-/* 右侧功能区：包含搜索框和用户图标，确保始终靠右 */
+/* 右侧功能区：确保搜索框和用户图标始终靠右 */
 .right-actions {
   display: flex;
   align-items: center;
-  margin-left: auto; /* 自动推到右侧 */
+  margin-left: auto;
 }
 
 /* 菜单按钮 */
@@ -102,16 +100,17 @@ const handleUserClick = () => {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #333;
+  color: #333; /* 深灰色图标 */
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 4px;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   margin-right: 10px;
 }
 
 .menu-toggle:hover {
-  background-color: #f5f5f5;
+  background-color: #f5f5f5; /* 浅灰色背景 */
+  color: #ff7eb3; /* 粉色强调 */
 }
 
 /* 网站标识 */
@@ -129,7 +128,7 @@ const handleUserClick = () => {
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #409eff;
+  color: #333; /* 深灰色文字 */
 }
 
 /* 搜索框 */
@@ -137,21 +136,29 @@ const handleUserClick = () => {
   display: flex;
   align-items: center;
   max-width: 500px;
-  margin-right: 20px; /* 与用户图标保持距离 */
+  margin-right: 20px;
 }
 
 .search-input {
-  width: 200px; /* 固定搜索框宽度 */
+  width: 280px;
   padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid #ddd; /* 浅灰色边框 */
   border-radius: 4px 0 0 4px;
   outline: none;
   font-size: 14px;
+  background-color: #f9f9f9; /* 浅灰色背景 */
+  color: #333; /* 深灰色文字 */
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: #ff7eb3; /* 粉色焦点边框 */
+  background-color: #fff;
 }
 
 .search-btn {
-  background-color: #409eff;
-  color: #fff;
+  background-color: #333; /* 深灰色按钮 */
+  color: #fff; /* 白色图标 */
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 0 4px 4px 0;
@@ -160,19 +167,19 @@ const handleUserClick = () => {
 }
 
 .search-btn:hover {
-  background-color: #3088e6;
+  background-color: #ff7eb3; /* 粉色悬停效果 */
 }
 
 /* 用户图标 */
 .user-icon {
   font-size: 1.8rem;
   cursor: pointer;
-  color: #333;
+  color: #333; /* 深灰色图标 */
   transition: color 0.2s;
 }
 
 .user-icon:hover {
-  color: #409eff;
+  color: #ff7eb3; /* 粉色悬停效果 */
 }
 
 .hidden {
@@ -190,13 +197,13 @@ const handleUserClick = () => {
   }
 
   .search-input {
-    width: 150px;
+    width: 200px;
   }
 }
 
 @media (max-width: 480px) {
   .search-input {
-    width: 120px;
+    width: 140px;
     padding: 0.5rem;
     font-size: 12px;
   }

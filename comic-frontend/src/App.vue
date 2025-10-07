@@ -36,9 +36,11 @@ const isSidebarOpen = ref(false);
   box-sizing: border-box;
 }
 
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f9f9f9;
+  background-color: #f9f9f9; /* 浅灰色背景 */
+  color: #333; /* 深灰色文字 */
   overflow-x: hidden;
 }
 
@@ -47,7 +49,7 @@ body {
   min-height: 100vh;
 }
 
-/* 主内容区域样式 - 只影响页面主体，不影响顶部导航 */
+/* 主内容区域样式 */
 .main-outer {
   width: 100%;
   padding-top: 64px;
@@ -56,14 +58,21 @@ body {
 }
 
 .main-outer.has-sidebar {
-  padding-left: 280px; /* 只移动主内容区，不影响顶部导航 */
+  padding-left: 280px;
 }
 
+/* 扩大内容区域宽度，减少留白 */
 .main-inner {
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
   padding: 20px 15px;
+}
+
+/* 确保顶部栏内容不随侧边栏移动 */
+.top-nav-inner {
+  position: relative;
+  z-index: 90;
 }
 
 /* 响应式调整 */

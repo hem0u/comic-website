@@ -1,6 +1,6 @@
 <template>
   <div class="home-container">
-    <!-- 顶部横幅：依赖 main-inner 容器居中 -->
+    <!-- 顶部横幅 -->
     <div class="hero-banner">
       <div class="banner-content">
         <h1>探索无限漫画世界</h1>
@@ -11,7 +11,7 @@
       </div>
     </div>
 
-    <!-- 分类导航：依赖 main-inner 容器居中 -->
+    <!-- 分类导航 -->
     <div class="category-section">
       <h2 class="section-title">漫画分类</h2>
       <div class="category-list">
@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <!-- 热门推荐：依赖 main-inner 容器居中 -->
+    <!-- 热门推荐 -->
     <div class="featured-section">
       <div class="section-header">
         <h2 class="section-title">热门推荐</h2>
@@ -68,7 +68,7 @@
       </div>
     </div>
 
-    <!-- 最新上架：依赖 main-inner 容器居中 -->
+    <!-- 最新上架 -->
     <div class="latest-section">
       <div class="section-header">
         <h2 class="section-title">最新上架</h2>
@@ -110,7 +110,6 @@
 </template>
 
 <script setup>
-// 脚本部分完全不变，确保数据加载正常
 import { ref, onMounted } from 'vue';
 import { getCategoryList, getComicList } from '../api/comic';
 import { ElMessage, ElTag, ElCard, ElLink, ElButton } from 'element-plus';
@@ -177,16 +176,16 @@ const getStatusType = (status) => {
 </script>
 
 <style scoped>
-/* 首页容器：100%宽度，依赖外层 main-inner 居中 */
+/* 首页容器 */
 .home-container {
   width: 100%;
 }
 
-/* 顶部横幅：100%宽度，在 main-inner 容器中居中 */
+/* 顶部横幅 */
 .hero-banner {
   width: 100%;
   height: 400px;
-  background: linear-gradient(135deg, #409eff 0%, #69b1ff 100%);
+  background: linear-gradient(135deg, #333 0%, #666 100%); /* 黑白灰渐变 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -204,7 +203,7 @@ const getStatusType = (status) => {
 .hero-banner h1 {
   font-size: 42px;
   margin-bottom: 20px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-banner p {
@@ -213,14 +212,26 @@ const getStatusType = (status) => {
   opacity: 0.9;
 }
 
-/* 分类区域：100%宽度，在 main-inner 容器中居中 */
+/* 按钮样式覆盖 */
+:deep(.el-button--primary) {
+  background-color: #ff7eb3; /* 粉色按钮 */
+  border-color: #ff7eb3;
+  color: #fff;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #ff66a8; /* 深一点的粉色 */
+  border-color: #ff66a8;
+}
+
+/* 分类区域 */
 .category-section {
   margin-bottom: 60px;
 }
 
 .section-title {
   font-size: 24px;
-  color: #333;
+  color: #333; /* 深灰色标题 */
   font-weight: 600;
   position: relative;
   padding-bottom: 10px;
@@ -234,7 +245,7 @@ const getStatusType = (status) => {
   bottom: 0;
   width: 40px;
   height: 3px;
-  background-color: #409eff;
+  background-color: #ff7eb3; /* 粉色下划线 */
 }
 
 .category-list {
@@ -249,16 +260,19 @@ const getStatusType = (status) => {
   cursor: pointer;
   transition: all 0.3s ease;
   border-radius: 8px;
+  border: 1px solid #f0f0f0; /* 浅灰色边框 */
+  background-color: #fff; /* 白色背景 */
 }
 
 .category-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  border-color: #ff7eb3; /* 粉色边框高亮 */
 }
 
 .category-icon {
   margin-bottom: 15px;
-  color: #409eff;
+  color: #ff7eb3; /* 粉色图标 */
 }
 
 .category-symbol {
@@ -268,15 +282,24 @@ const getStatusType = (status) => {
 .category-name {
   font-size: 16px;
   font-weight: 500;
-  color: #333;
+  color: #333; /* 深灰色文字 */
 }
 
-/* 热门推荐 & 最新上架：100%宽度，在 main-inner 容器中居中 */
+/* 热门推荐 & 最新上架 */
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+/* 链接样式覆盖 */
+:deep(.el-link) {
+  color: #666; /* 中灰色链接 */
+}
+
+:deep(.el-link:hover) {
+  color: #ff7eb3; /* 粉色悬停效果 */
 }
 
 .featured-section, .latest-section {
@@ -293,13 +316,15 @@ const getStatusType = (status) => {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
   cursor: pointer;
-  background-color: #fff;
+  background-color: #fff; /* 白色卡片 */
   border-radius: 8px;
+  border: 1px solid #f0f0f0; /* 浅灰色边框 */
 }
 
 .comic-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  border-color: #ff7eb3; /* 粉色边框高亮 */
 }
 
 .comic-cover-container {
@@ -334,14 +359,27 @@ const getStatusType = (status) => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #333;
+  color: #333; /* 深灰色标题 */
   font-weight: 500;
 }
 
 .comic-author {
   font-size: 14px;
-  color: #666;
+  color: #666; /* 中灰色作者名 */
   margin-bottom: 10px;
+}
+
+/* 标签样式覆盖 */
+:deep(.el-tag--primary) {
+  background-color: #f5f5f5;
+  color: #333;
+  border-color: #ddd;
+}
+
+:deep(.el-tag--success) {
+  background-color: #f5f5f5;
+  color: #ff7eb3;
+  border-color: #ff7eb3;
 }
 
 /* 无数据占位 */
@@ -349,14 +387,15 @@ const getStatusType = (status) => {
   grid-column: 1 / -1;
   text-align: center;
   padding: 60px 20px;
-  background-color: #fff;
+  background-color: #fff; /* 白色背景 */
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px dashed #ddd; /* 虚线边框 */
 }
 
 .empty-text {
   font-size: 16px;
-  color: #999;
+  color: #999; /* 浅灰色文字 */
 }
 
 /* 响应式调整 */

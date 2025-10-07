@@ -63,15 +63,15 @@ const closeSidebar = () => {
 <style scoped>
 .sidebar {
   position: fixed;
-  top: 0; /* 从顶部开始显示，覆盖顶部栏 */
+  top: 0;
   left: 0;
-  height: 100vh; /* 全屏高度 */
+  height: 100vh;
   width: 280px;
-  background-color: #fff;
+  background-color: #fff; /* 白色背景 */
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
-  z-index: 100; /* 确保在顶部栏上方 */
+  z-index: 100;
   overflow-y: auto;
 }
 
@@ -84,20 +84,20 @@ const closeSidebar = () => {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0; /* 浅灰色边框 */
 }
 
 .sidebar-title {
   margin: 0;
   font-size: 1.2rem;
   font-weight: 600;
-  color: #409eff;
+  color: #333; /* 深灰色文字 */
 }
 
 .close-btn {
   background: none;
   border: none;
-  color: #999;
+  color: #999; /* 中灰色图标 */
   cursor: pointer;
   font-size: 1.5rem;
   padding: 0.3rem;
@@ -106,7 +106,7 @@ const closeSidebar = () => {
 }
 
 .close-btn:hover {
-  color: #333;
+  color: #ff7eb3; /* 粉色悬停效果 */
 }
 
 .sidebar-nav ul {
@@ -114,25 +114,26 @@ const closeSidebar = () => {
 }
 
 .nav-item {
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid #f5f5f5; /* 浅灰色边框 */
 }
 
 .nav-item a {
   display: flex;
   align-items: center;
   padding: 1rem 1.5rem;
-  color: #666;
+  color: #666; /* 中灰色文字 */
   text-decoration: none;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
 .nav-item a:hover {
-  background-color: #fafafa;
+  background-color: #f9f9f9; /* 浅灰色背景 */
+  color: #ff7eb3; /* 粉色文字 */
 }
 
 .nav-item.active a {
-  background-color: #e6f7ff;
-  color: #409eff;
+  background-color: #f5f5f5; /* 浅灰色背景 */
+  color: #ff7eb3; /* 粉色文字 - 当前页高亮 */
 }
 
 .nav-icon {
