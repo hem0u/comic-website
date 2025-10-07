@@ -226,7 +226,7 @@ html, body {
 /* 中间登录容器 */
 .login-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 430px;
   padding: 24px;
   text-align: center;
   background-color: #fff;
@@ -309,12 +309,26 @@ html, body {
 }
 .login-form {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+:deep(.el-form-item) {
+  width: 100% !important;
+  margin-bottom: 10px !important;
+}
+:deep(.el-form-item__content) {
+  width: 100% !important;
+  margin-left: 0 !important;
 }
 :deep(.el-input) {
   width: 100% !important;
+  margin: 0 auto;
+  display: block;
 }
 :deep(.el-input__wrapper) {
   height: 40px !important;
+  width: 100% !important;
   border-radius: 4px !important;
   background-color: #f5f5f5 !important;
   border: 1px solid #e0e0e0 !important;
@@ -371,11 +385,14 @@ html, body {
 /* 按钮样式 */
 .el-form-item:last-child .el-form-item__content {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  width: 100%;
+  margin: 0 auto;
 }
 .el-form-item:last-child .el-button {
   flex: 1;
   height: 40px;
+  width: 195px;
   border-radius: 4px;
 }
 :deep(.el-button--primary) {
