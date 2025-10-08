@@ -5,63 +5,61 @@ import { useUserStore } from '../stores/userStore'
 const routes = [
     {
         path: '/',
-        redirect: '/home'  // 根路径重定向到首页
+        redirect: '/home'
     },
     {
         path: '/login',
         name: 'Login',
         component: () => import('../views/Login.vue'),
-        meta: { requireAuth: false, hideNav: true }  // 不需要登录，隐藏导航
+        meta: { requireAuth: false, hideNav: true }
     },
     {
         path: '/register',
         name: 'Register',
         component: () => import('../views/Register.vue'),
-        meta: { requireAuth: false, hideNav: true }  // 隐藏导航
+        meta: { requireAuth: false, hideNav: true }
     },
     {
         path: '/comic-list',
         name: 'ComicList',
         component: () => import('../views/ComicList.vue'),
-        meta: { requireAuth: false }  // 漫画列表不需要登录
+        meta: { requireAuth: false }
     },
-    // 在现有路由规则中添加
     {
         path: '/home',
         name: 'Home',
         component: () => import('../views/Home.vue'),
-        meta: { requireAuth: false }  // 首页不需要登录
+        meta: { requireAuth: false }
     },
     {
         path: '/comic-read/:id',
         name: 'ComicRead',
         component: () => import('../views/ComicRead.vue'),
-        meta: { requireAuth: false }  // 阅读页不需要登录
+        meta: { requireAuth: false }
     },
     {
         path: '/user-center',
         name: 'UserCenter',
         component: () => import('../views/UserCenter.vue'),
-        meta: { requireAuth: true }  // 个人中心需要登录
+        meta: { requireAuth: true }
     },
     {
         path: '/search',
         name: 'Search',
         component: () => import('../views/SearchPage.vue'),
-        meta: { requireAuth: false }  // 搜索页面不需要登录
+        meta: { requireAuth: false }
     }
 ];
 
 // 创建路由实例
 const router = createRouter({
-    history: createWebHistory(),  // 使用HTML5历史模式（无#）
+    history: createWebHistory(),
     routes
 });
 
-// 路由守卫：验证需要登录的页面
+// 路由守卫
 router.beforeEach((to, from, next) => {
     const userStore = useUserStore();
-    // 需要登录且无token：跳转登录页
     if (to.meta.requireAuth && !userStore.token) {
         next('/login');
     } else {

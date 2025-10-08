@@ -53,16 +53,21 @@
               </el-select>
             </div>
             <div class="filter-item">
-              <label>标签过滤</label>
-              <el-select v-model="filterTags" class="filter-select">
-                <el-option label="包含任意" value="any"></el-option>
-                <el-option label="包含全部" value="all"></el-option>
+              <label>分类选择</label>
+              <el-select v-model="filterTags" multiple placeholder="请选择分类" class="filter-select category-multiselect">
+                <el-option v-for="category in categoryList" :key="category.id" :label="category.name" :value="category.id"></el-option>
               </el-select>
             </div>
             <div class="filter-item">
               <label>作者</label>
-              <el-select v-model="authors" class="filter-select">
+              <el-input v-model="authorName" placeholder="请输入作者名称" class="filter-select"></el-input>
+            </div>
+            <div class="filter-item">
+              <label>出版状态</label>
+              <el-select v-model="publicationStatus" class="filter-select">
                 <el-option label="任意" value="any"></el-option>
+                <el-option label="连载中" value="ongoing"></el-option>
+                <el-option label="已完结" value="completed"></el-option>
               </el-select>
             </div>
             <div class="filter-item">
@@ -72,14 +77,6 @@
                 <span>-</span>
                 <el-input v-model="maxYear" placeholder="最大" class="year-input-small"></el-input>
               </div>
-            </div>
-            <div class="filter-item">
-              <label>出版状态</label>
-              <el-select v-model="publicationStatus" class="filter-select">
-                <el-option label="任意" value="any"></el-option>
-                <el-option label="连载中" value="ongoing"></el-option>
-                <el-option label="已完结" value="completed"></el-option>
-              </el-select>
             </div>
           </div>
         </div>
@@ -208,7 +205,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { getComicList } from '../api/comic';
+import { getComicList, getCategoryList } from '../api/comic';
 import { useRouter, useRoute } from 'vue-router';
 import { ElInput, ElButton, ElCard, ElTag, ElEmpty, ElPagination, ElMessage } from 'element-plus';
 import 'element-plus/dist/index.css';
@@ -223,15 +220,18 @@ const layout = ref('list'); // 'list', 'grid', 'large'
 const showFilters = ref(false);
 
 // 过滤器选项
-const sortBy = ref('none');
-const filterTags = ref('any');
-const authors = ref('any');
-const minYear = ref('');
-const maxYear = ref('');
-const publicationStatus = ref('any');
+    const sortBy = ref('none');
+    const filterTags = ref([]); // 改为数组存储选中的分类ID
+    const authorName = ref(''); // 改为输入框
+    const minYear = ref('');
+    const maxYear = ref('');
+    const publicationStatus = ref('any');
+    
+    // 分类列表
+    const categoryList = ref([]);
 
-// 漫画列表数据 - 初始化为空数组，避免显示示例数据
-const comicList = ref([]);
+    // 漫画列表数据 - 初始化为空数组，避免显示示例数据
+    const comicList = ref([]);
 // 分页参数
 const currentPage = ref(1);
 const pageSize = ref(8);
@@ -241,25 +241,108 @@ const advancedKeyword = ref('');
 // 加载状态
 const loading = ref(false);
 
-// 获取漫画列表
-const fetchComicList = async () => {
-  loading.value = true;
-  try {
-    const keyword = advancedKeyword.value.trim();
-    const params = {
-      page: currentPage.value,
-      size: pageSize.value,
-      keyword: keyword
+// 获取分类列表
+    const getCategoryOptions = async () => {
+      try {
+        const res = await getCategoryList();
+        if (res && res.data) {
+          categoryList.value = res.data || [];
+        }
+      } catch (error) {
+        console.error('获取分类列表失败', error);
+      }
     };
-    const res = await getComicList(params);
 
-    if (!res || !res.data) {
-      throw new Error('接口返回格式异常');
-    }
+    // 获取漫画列表
+    const fetchComicList = async () => {
+      loading.value = true;
+      try {
+        // 合并关键词和作者名搜索
+        let combinedKeyword = advancedKeyword.value.trim();
+        if (authorName.value.trim()) {
+          // 如果有关键词，用空格连接；如果没有，直接用作者名
+          combinedKeyword = combinedKeyword ? `${combinedKeyword} ${authorName.value.trim()}` : authorName.value.trim();
+        }
+        
+        const params = {
+          page: currentPage.value,
+          size: pageSize.value,
+          keyword: combinedKeyword
+        };
+        
+        // 移除向后端传递分类ID的代码，这样可以获取所有漫画，然后在前端进行完整的多分类过滤
+        // 这解决了只能显示第一个分类漫画的问题
+        
+        // 注意：后端目前不支持出版状态过滤，此功能将在前端实现
+        
+        const response = await getComicList(params);
+        console.log('API响应完整结构:', response);
+        console.log('响应数据类型:', typeof response);
+        
+        // 后端API返回格式: { code: 200, msg: "成功", data: { list: [...], total: ... } }
+        // 所以数据在response.data中
+        const res = response.data;
+        
+        if (!res || !res.list || typeof res.total === 'undefined') {
+          console.error('接口返回格式异常:', response);
+          throw new Error('接口返回格式异常');
+        }
 
-    // 始终使用API返回的数据
-    comicList.value = res.data.list || [];
-    total.value = res.data.total || 0;
+        let filteredList = res.list || [];
+        
+        // 如果用户选择了多个分类，在前端进行多分类过滤
+        if (filterTags.value && filterTags.value.length > 0) {
+          // 转换所有选中的标签为字符串类型，确保类型一致性
+          const selectedCategoryIds = filterTags.value.map(tag => String(tag));
+          
+          filteredList = filteredList.filter(comic => {
+            // 尝试从漫画对象中获取分类ID，考虑多种可能的字段名称
+            let comicCategoryId = '';
+            
+            // 检查所有可能的分类ID字段名称
+            if (comic.categoryId !== undefined) {
+              comicCategoryId = String(comic.categoryId);
+            } else if (comic.category_id !== undefined) {
+              comicCategoryId = String(comic.category_id);
+            } else if (comic.catId !== undefined) {
+              comicCategoryId = String(comic.catId);
+            }
+            
+            // 检查漫画的分类ID是否在用户选择的分类列表中
+            return selectedCategoryIds.includes(comicCategoryId);
+          });
+          
+          console.log('多分类过滤后结果数量:', filteredList.length);
+        }
+        
+        // 实现出版状态过滤
+        if (publicationStatus.value !== 'any') {
+          filteredList = filteredList.filter(comic => {
+            // 根据数据中的状态值判断
+            // 通常连载中是0，已完结是1
+            if (publicationStatus.value === 'ongoing') {
+              return comic.status === 0;
+            } else if (publicationStatus.value === 'completed') {
+              return comic.status === 1;
+            }
+            return true;
+          });
+          
+          console.log('出版状态过滤后结果数量:', filteredList.length);
+        }
+        
+        console.log('原始搜索结果数量:', res.list.length);
+        console.log('前端过滤后结果数量:', filteredList.length);
+        console.log('前2个漫画详情:', filteredList.slice(0, 2));
+        
+        // 使用过滤后的数据
+        comicList.value = filteredList;
+        // 由于前端进行了过滤，总条数应该使用过滤后的数量
+        total.value = filteredList.length || 0;
+        
+        console.log('最终漫画列表长度:', comicList.value.length);
+        console.log('最终总条数:', total.value);
+        console.log('是否有漫画数据:', comicList.value.length > 0);
 
   } catch (error) {
         console.error('获取漫画列表失败', error);
@@ -288,18 +371,18 @@ const toggleFilters = () => {
 };
 
 // 重置过滤器
-  const resetFilters = () => {
-    advancedKeyword.value = '';
-    sortBy.value = 'none';
-    filterTags.value = 'any';
-    authors.value = 'any';
-    minYear.value = '';
-    maxYear.value = '';
-    publicationStatus.value = 'any';
-    comicList.value = [];
-    total.value = 0;
-    ElMessage.info('过滤器已重置');
-  };
+      const resetFilters = () => {
+        advancedKeyword.value = '';
+        sortBy.value = 'none';
+        filterTags.value = [];
+        authorName.value = '';
+        minYear.value = '';
+        maxYear.value = '';
+        publicationStatus.value = 'any';
+        comicList.value = [];
+        total.value = 0;
+        ElMessage.info('过滤器已重置');
+      };
 
 // 幸运搜索
 const imFeelingLucky = () => {
@@ -353,8 +436,7 @@ const getStatusType = (status) => {
 watch(
   () => route.query.keyword,
   (newKeyword) => {
-    // 只有在主动导航时才更新搜索框内容，防止刷新页面时自动填充
-    if (newKeyword && !isInitialLoad.value) {
+    if (newKeyword) {
       advancedKeyword.value = decodeURIComponent(newKeyword);
       currentPage.value = 1;
       fetchComicList();
@@ -372,16 +454,22 @@ const handleKeywordInput = () => {
 };
 
 // 页面挂载时初始化
-onMounted(() => {
-  if (route.query.keyword) {
-    // 已经在watch中处理
-  } else {
-    // 如果没有搜索关键词，默认加载所有漫画
-    performSearch();
-  }
-  // 标记为已完成初始加载
-  isInitialLoad.value = false;
-});
+    onMounted(() => {
+      // 获取分类列表
+      getCategoryOptions();
+      
+      if (route.query.keyword) {
+        // 处理路由中的搜索关键词
+        advancedKeyword.value = decodeURIComponent(route.query.keyword);
+        currentPage.value = 1;
+        fetchComicList();
+      } else {
+        // 如果没有搜索关键词，默认加载所有漫画
+        performSearch();
+      }
+      // 标记为已完成初始加载
+      isInitialLoad.value = false;
+    });
 </script>
 
 <style scoped>
@@ -488,8 +576,35 @@ onMounted(() => {
 }
 
 .filter-select {
-  width: 160px;
+  width: 100%;
   font-size: 14px;
+}
+
+/* 年份输入框特殊处理 */
+.year-input .filter-select {
+  width: 60px;
+}
+
+/* 分类选择框增加默认宽度 - 确保所有状态下都有合适宽度 */
+.category-multiselect {
+  min-width: 250px !important;
+  width: 100% !important;
+}
+
+/* 确保Element Plus选择框在空状态下也有足够宽度 */
+:deep(.category-multiselect) .el-select__wrapper {
+  min-width: 250px !important;
+  width: 100% !important;
+}
+
+:deep(.category-multiselect) .el-input__wrapper {
+  min-width: 250px !important;
+  width: 100% !important;
+}
+
+:deep(.category-multiselect) .el-input__inner {
+  min-width: 250px !important;
+  width: 100% !important;
 }
 
 .year-input {
@@ -612,11 +727,22 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 16px;
   width: 100%;
+  justify-content: space-between;
 }
 
+/* 过滤器项目统一样式 */
 .filter-item {
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   margin-bottom: 0 !important;
+}
+
+/* 单行过滤器项目宽度自适应，确保均匀分布 */
+.filter-row.single-row .filter-item {
+  flex: 1;
+  min-width: 160px;
+  max-width: calc(25% - 12px); /* 最多显示4列，留出间距 */
+  flex-shrink: 1;
 }
 
 /* 搜索操作按钮组 - 始终显示在过滤器按钮下方，右对齐 */
@@ -856,7 +982,7 @@ onMounted(() => {
 .comic-item {
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: #f5f5f5;
   border-radius: 4px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -997,6 +1123,64 @@ onMounted(() => {
 
 :deep(.el-pagination) {
   margin-top: 20px;
+}
+
+/* 分类选择框样式 - 使选项在一行显示 */
+/* 使用特定的类名来提高优先级 */
+:deep(.category-multiselect) {
+  display: flex !important;
+  align-items: center !important;
+}
+
+:deep(.category-multiselect) .el-select__tags {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-height: 32px !important;
+  height: 32px !important;
+  padding-right: 30px !important;
+  width: auto !important;
+  min-width: 230px !important;
+}
+
+:deep(.category-multiselect) .el-select__tags::-webkit-scrollbar {
+  height: 4px !important;
+}
+
+:deep(.category-multiselect) .el-select__tags::-webkit-scrollbar-thumb {
+  background-color: #dcdfe6 !important;
+  border-radius: 2px !important;
+}
+
+:deep(.category-multiselect) .el-select__tags > span {
+  display: inline-flex !important;
+  margin: 2px 0 2px 5px !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+/* 修复分类标签关闭按钮位置 - 确保关闭按钮在标签右边 */
+:deep(.category-multiselect) .el-tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin-right: 5px !important;
+  white-space: nowrap !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  padding: 0 10px !important;
+}
+
+:deep(.category-multiselect) .el-tag__close {
+  position: relative !important;
+  top: 0 !important;
+  right: -5px !important;
+  transform: none !important;
+  margin-left: 5px !important;
+}
+
+:deep(.category-multiselect) .el-select__tags-text {
+  white-space: nowrap !important;
 }
 
 /* 响应式设计 */

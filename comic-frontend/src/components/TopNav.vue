@@ -144,11 +144,7 @@ const onMenuClick = () => {
 const handleSearch = () => {
   if (!searchInput.value) return;
   const keyword = searchInput.value.value.trim();
-  if (!keyword) {
-    ElMessage.warning('请输入搜索关键词');
-    return;
-  }
-  // 跳转到搜索页面并传递关键词
+  // 无论关键词是否为空，都跳转到搜索页面
   router.push({ path: '/search', query: { keyword: encodeURIComponent(keyword) } });
   // 清空搜索框
   searchInput.value.value = '';

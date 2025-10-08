@@ -58,7 +58,7 @@ const hideNavigation = computed(() => {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f9f9f9; /* 浅灰色背景 */
+  background-color: #fff; /* 白色背景，与style.css保持一致 */
   color: #333; /* 深灰色文字 */
   overflow-x: hidden;
 }
