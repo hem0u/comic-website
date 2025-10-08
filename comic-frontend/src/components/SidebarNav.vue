@@ -1,7 +1,10 @@
 <template>
   <div class="sidebar" :class="{ 'sidebar-open': isOpen }">
     <div class="sidebar-header">
-      <h2 class="sidebar-title">漫画导航</h2>
+      <div class="logo" style="display: flex; align-items: center;">
+        <img src="../assets/vue.svg" alt="ComicPondLogo" style="width: 2rem; height: 2rem; margin-right: 0.5rem;">
+        <span style="font-size: 1.5rem; font-weight: 700; color: #333;">ComicPond</span>
+      </div>
       <button class="close-btn" @click="closeSidebar">
         <span class="close-symbol">×</span>
       </button>
@@ -9,31 +12,31 @@
     <nav class="sidebar-nav">
       <ul>
         <li class="nav-item" :class="{ active: $route.path === '/home' }">
-          <router-link to="/home" @click="closeSidebar">
+          <router-link to="/home">
             <span class="nav-icon">🏠</span>
             <span class="nav-text">首页</span>
           </router-link>
         </li>
         <li class="nav-item" :class="{ active: $route.path === '/category' }">
-          <router-link to="/category" @click="closeSidebar">
+          <router-link to="/category">
             <span class="nav-icon">📚</span>
             <span class="nav-text">全部分类</span>
           </router-link>
         </li>
         <li class="nav-item" :class="{ active: $route.path === '/rank' }">
-          <router-link to="/rank" @click="closeSidebar">
+          <router-link to="/rank">
             <span class="nav-icon">🏆</span>
             <span class="nav-text">排行榜</span>
           </router-link>
         </li>
         <li class="nav-item" :class="{ active: $route.path === '/update' }">
-          <router-link to="/update" @click="closeSidebar">
+          <router-link to="/update">
             <span class="nav-icon">🔄</span>
             <span class="nav-text">最新更新</span>
           </router-link>
         </li>
         <li class="nav-item" :class="{ active: $route.path === '/favorite' }">
-          <router-link to="/favorite" @click="closeSidebar">
+          <router-link to="/favorite">
             <span class="nav-icon">❤️</span>
             <span class="nav-text">我的收藏</span>
           </router-link>
@@ -66,7 +69,7 @@ const closeSidebar = () => {
   top: 0;
   left: 0;
   height: 100vh;
-  width: 280px;
+  width: 260px; /* 适当缩小侧边栏宽度 */
   background-color: #fff; /* 白色背景 */
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   transform: translateX(-100%);
@@ -143,7 +146,7 @@ const closeSidebar = () => {
 
 @media (max-width: 768px) {
   .sidebar {
-    width: 250px;
+    width: 230px; /* 相应调整响应式设计下的宽度 */
   }
 }
 </style>

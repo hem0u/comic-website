@@ -12,8 +12,8 @@
 
       <!-- 网站标识 -->
       <div class="logo" :class="{ 'hidden': sidebarOpen }">
-        <img src="../assets/vue.svg" alt="漫画世界logo" class="logo-img">
-        <span class="logo-text">漫画世界</span>
+        <img src="../assets/vue.svg" alt="ComicPondLogo" class="logo-img">
+        <span class="logo-text">ComicPond</span>
       </div>
 
       <!-- 右侧功能区：搜索框 + 用户图标 -->
@@ -32,17 +32,78 @@
         </div>
 
         <!-- 用户图标 -->
-        <div class="user-icon" @click="handleUserClick">
-          <i class="fa fa-user-circle"></i>
+        <div class="user-icon-wrapper" ref="userIconWrapper">
+          <div class="user-icon" @click="toggleUserMenu">
+            <i class="fa fa-user-circle"></i>
+          </div>
         </div>
       </div>
     </div>
   </header>
+  
+  <!-- 遮罩层 -->
+  <div v-if="isUserMenuOpen" class="user-menu-overlay" @click="closeUserMenu"></div>
+  
+  <!-- 用户菜单弹窗 -->
+  <div 
+    v-if="isUserMenuOpen" 
+    class="user-menu"
+    :style="menuPositionStyle"
+  >
+    <div class="menu-header">
+      <div class="avatar">
+        <i class="fa fa-user-circle"></i>
+      </div>
+      <div class="user-info">
+        <div class="username">LuvinU01</div>
+        <div class="user-role">User</div>
+      </div>
+    </div>
+    <div class="menu-divider"></div>
+    <div class="menu-items">
+        <div class="menu-item" @click="goToUserCenter">
+          <i class="fa fa-user"></i>
+          <span>我的资料</span>
+        </div>
+      <div class="menu-item">
+        <i class="fa fa-bookmark"></i>
+        <span>我的关注</span>
+      </div>
+      <div class="menu-item">
+        <i class="fa fa-list"></i>
+        <span>我的列表</span>
+      </div>
+      <div class="menu-item">
+        <i class="fa fa-users"></i>
+        <span>我的群组</span>
+      </div>
+      <div class="menu-item">
+        <i class="fa fa-bell"></i>
+        <span>我的报告</span>
+      </div>
+      <div class="menu-item">
+        <i class="fa fa-bullhorn"></i>
+        <span>公告</span>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-item">
+        <i class="fa fa-cog"></i>
+        <span>设置</span>
+      </div>
+      <div class="menu-item">
+        <i class="fa fa-sign-out"></i>
+        <span>退出登录</span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { defineEmits, defineProps } from 'vue';
+import { defineEmits, defineProps, ref, onMounted, onUnmounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const props = defineProps({
   sidebarOpen: {
@@ -53,6 +114,25 @@ const props = defineProps({
 
 const emit = defineEmits(['open-menu']);
 
+// 用户菜单状态
+const isUserMenuOpen = ref(false);
+const userIconWrapper = ref(null);
+
+// 计算菜单位置
+const menuPositionStyle = computed(() => {
+  if (!userIconWrapper.value || !isUserMenuOpen.value) {
+    return {};
+  }
+  
+  const rect = userIconWrapper.value.getBoundingClientRect();
+  return {
+    position: 'fixed',
+    top: `${rect.bottom}px`,
+    right: `${window.innerWidth - rect.right}px`,
+    zIndex: '1000'
+  };
+});
+
 const onMenuClick = () => {
   emit('open-menu');
 };
@@ -61,9 +141,37 @@ const handleSearch = () => {
   ElMessage.info('搜索功能即将上线');
 };
 
-const handleUserClick = () => {
-  ElMessage.info('用户中心即将上线');
+// 跳转到个人中心
+const goToUserCenter = () => {
+  closeUserMenu();
+  router.push('/user-center');
 };
+
+// 切换用户菜单显示状态
+const toggleUserMenu = () => {
+  isUserMenuOpen.value = !isUserMenuOpen.value;
+  updateBodyScroll();
+};
+
+// 关闭用户菜单
+const closeUserMenu = () => {
+  isUserMenuOpen.value = false;
+  updateBodyScroll();
+};
+
+// 更新body滚动状态
+const updateBodyScroll = () => {
+  if (isUserMenuOpen.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = 'auto';
+  }
+};
+
+// 组件卸载时恢复滚动
+onUnmounted(() => {
+  document.body.style.overflow = 'auto';
+});
 </script>
 
 <style scoped>
@@ -75,7 +183,7 @@ const handleUserClick = () => {
   height: 64px;
   background-color: #fff; /* 白色背景 */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 90;
+  z-index: 88;
 }
 
 .top-nav-inner {
@@ -171,15 +279,112 @@ const handleUserClick = () => {
 }
 
 /* 用户图标 */
+.user-icon-wrapper {
+  position: relative;
+  margin-left: 1rem;
+}
+
 .user-icon {
   font-size: 1.8rem;
   cursor: pointer;
   color: #333; /* 深灰色图标 */
   transition: color 0.2s;
+  padding: 0.5rem;
 }
 
 .user-icon:hover {
   color: #ff7eb3; /* 粉色悬停效果 */
+}
+
+/* 用户菜单 */
+.user-menu {
+  width: 220px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+/* 菜单头部 */
+.menu-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: #f9f9f9;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #ff7eb3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.5rem;
+  margin-right: 12px;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.username {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #666;
+}
+
+/* 菜单项 */
+.menu-items {
+  /* 移除最大高度限制，避免滚动条出现 */
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #333;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.menu-item i {
+  width: 20px;
+  margin-right: 12px;
+  text-align: center;
+  color: #666;
+}
+
+.menu-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 0;
+}
+
+/* 遮罩层 */
+.user-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 110; /* 大于侧边栏的z-index(100)，确保能覆盖侧边栏 */
+  background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色遮罩 */
+  backdrop-filter: blur(2px); /* 背景模糊效果 */
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .hidden {
