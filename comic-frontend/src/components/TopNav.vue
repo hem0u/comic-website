@@ -30,10 +30,11 @@
           <i class="fa fa-search search-icon" @click="handleSearch"></i>
         </div>
 
-        <!-- 用户图标 -->
+        <!-- 用户头像 -->
         <div class="user-icon-wrapper" ref="userIconWrapper">
           <div class="user-icon" @click="toggleUserMenu">
-            <i class="fa fa-user-circle"></i>
+            <img v-if="userStore.token && userStore.avatar" :src="getAvatarUrl(userStore.avatar)" alt="User Avatar" class="user-avatar">
+            <i v-else class="fa fa-user-circle"></i>
           </div>
         </div>
       </div>
@@ -49,49 +50,75 @@
     class="user-menu"
     :style="menuPositionStyle"
   >
-    <div class="menu-header">
-      <div class="avatar">
+    <!-- 未登录状态 -->
+    <div v-if="!userStore.token" class="guest-menu">
+      <div class="guest-avatar">
         <i class="fa fa-user-circle"></i>
       </div>
-      <div class="user-info">
-        <div class="username">LuvinU01</div>
-        <div class="user-role">User</div>
+      <div class="guest-name">访客</div>
+      <div class="menu-divider"></div>
+      <div class="menu-items">
+        <div class="menu-item">
+          <i class="fa fa-cog"></i>
+          <span>设置</span>
+        </div>
+        <div class="menu-item">
+          <i class="fa fa-moon-o"></i>
+          <span>主题</span>
+        </div>
+        <div class="menu-divider"></div>
+        <button class="login-button" @click="goToLogin">登录</button>
+        <button class="register-button" @click="goToRegister">注册</button>
       </div>
     </div>
-    <div class="menu-divider"></div>
-    <div class="menu-items">
+    
+    <!-- 已登录状态 -->
+    <div v-else>
+      <div class="menu-header">
+        <div class="avatar">
+          <img v-if="userStore.avatar" :src="getAvatarUrl(userStore.avatar)" alt="User Avatar" class="user-avatar">
+          <i v-else class="fa fa-user-circle"></i>
+        </div>
+        <div class="user-info">
+          <div class="username">{{ userStore.username }}</div>
+          <div class="user-role">User</div>
+        </div>
+      </div>
+      <div class="menu-divider"></div>
+      <div class="menu-items">
         <div class="menu-item" @click="goToUserCenter">
           <i class="fa fa-user"></i>
           <span>我的资料</span>
         </div>
-      <div class="menu-item">
-        <i class="fa fa-bookmark"></i>
-        <span>我的关注</span>
-      </div>
-      <div class="menu-item">
-        <i class="fa fa-list"></i>
-        <span>我的列表</span>
-      </div>
-      <div class="menu-item">
-        <i class="fa fa-users"></i>
-        <span>我的群组</span>
-      </div>
-      <div class="menu-item">
-        <i class="fa fa-bell"></i>
-        <span>我的报告</span>
-      </div>
-      <div class="menu-item">
-        <i class="fa fa-bullhorn"></i>
-        <span>公告</span>
-      </div>
-      <div class="menu-divider"></div>
-      <div class="menu-item">
-        <i class="fa fa-cog"></i>
-        <span>设置</span>
-      </div>
-      <div class="menu-item" @click="handleLogout">
-        <i class="fa fa-sign-out"></i>
-        <span>退出登录</span>
+        <div class="menu-item">
+          <i class="fa fa-bookmark"></i>
+          <span>我的关注</span>
+        </div>
+        <div class="menu-item">
+          <i class="fa fa-list"></i>
+          <span>我的列表</span>
+        </div>
+        <div class="menu-item">
+          <i class="fa fa-users"></i>
+          <span>我的群组</span>
+        </div>
+        <div class="menu-item">
+          <i class="fa fa-bell"></i>
+          <span>我的报告</span>
+        </div>
+        <div class="menu-item">
+          <i class="fa fa-bullhorn"></i>
+          <span>公告</span>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item">
+          <i class="fa fa-cog"></i>
+          <span>设置</span>
+        </div>
+        <div class="menu-item" @click="handleLogout">
+          <i class="fa fa-sign-out"></i>
+          <span>退出登录</span>
+        </div>
       </div>
     </div>
   </div>
@@ -101,8 +128,32 @@
 import { defineEmits, defineProps, ref, onMounted, onUnmounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '../stores/userStore';  // 导入用户状态存储
+
+// 处理头像路径，确保正确显示
+const getAvatarUrl = (avatarPath) => {
+  // 如果没有头像，返回空字符串
+  if (!avatarPath) return '';
+  
+  // 如果是绝对路径或者已经是完整的URL，则直接返回
+  if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
+    return avatarPath;
+  }
+  
+  // 处理相对路径
+  // 这里假设从数据库获取的相对路径是相对于项目根目录的
+  // 需要调整为相对于当前组件的路径
+  if (avatarPath.startsWith('../assets/')) {
+    // 将 ../assets/ 转换为 ./assets/
+    return avatarPath.replace('../assets/', './assets/');
+  }
+  
+  // 其他情况，直接返回
+  return avatarPath;
+};
 
 const router = useRouter();
+const userStore = useUserStore();  // 使用用户状态存储
 
 const props = defineProps({
   sidebarOpen: {
@@ -154,6 +205,18 @@ const goToUserCenter = () => {
   router.push('/user-center');
 };
 
+// 跳转到登录页面
+const goToLogin = () => {
+  closeUserMenu();
+  router.push('/login');
+};
+
+// 跳转到注册页面
+const goToRegister = () => {
+  closeUserMenu();
+  router.push('/register');
+};
+
 // 切换用户菜单显示状态
 const toggleUserMenu = () => {
   isUserMenuOpen.value = !isUserMenuOpen.value;
@@ -179,9 +242,12 @@ const updateBodyScroll = () => {
 const handleLogout = () => {
   // 显示确认对话框
   if (confirm('确定要退出登录吗？')) {
-    // 清除用户登录状态（实际应用中应该清除localStorage中的token等）
-    localStorage.removeItem('token');
+    // 调用用户状态存储的clearToken方法清除所有用户信息
+    userStore.clearToken();
+    
+    // 清除所有可能的用户相关存储信息
     localStorage.removeItem('userInfo');
+    localStorage.removeItem('userData');
     
     // 关闭用户菜单
     closeUserMenu();
@@ -313,22 +379,39 @@ onUnmounted(() => {
 }
 
 /* 用户图标 */
-.user-icon-wrapper {
-  position: relative;
-  margin-left: 1rem;
-}
+  .user-icon-wrapper {
+    position: relative;
+    margin-left: 1rem;
+  }
 
-.user-icon {
-  font-size: 1.8rem;
-  cursor: pointer;
-  color: #333; /* 深灰色图标 */
-  transition: color 0.2s;
-  padding: 0.5rem;
-}
+  .user-icon {
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #333; /* 深灰色图标 */
+    transition: color 0.2s;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.user-icon:hover {
-  color: #ff7eb3; /* 粉色悬停效果 */
-}
+  .user-icon:hover {
+    color: #ff7eb3; /* 粉色悬停效果 */
+  }
+
+  /* 用户头像 */
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .user-icon:hover .user-avatar {
+    border-color: #ff7eb3;
+  }
 
 /* 用户菜单 */
 .user-menu {
@@ -374,6 +457,78 @@ onUnmounted(() => {
 .user-role {
   font-size: 12px;
   color: #666;
+}
+
+/* 未登录状态样式 */
+.guest-menu {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.guest-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 2rem;
+  margin: 0 auto 12px;
+}
+
+.guest-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.beta-tag {
+  background-color: #ff6b6b;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+}
+
+.language-selector {
+  margin-left: auto;
+  color: #666;
+}
+
+/* 登录注册按钮 */
+.login-button,
+.register-button {
+  width: 80%;
+  margin: 8px auto;
+  padding: 10px 0;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.login-button {
+  background-color: #ff7eb3;
+  color: white;
+}
+
+.login-button:hover {
+  background-color: #ff5a9d;
+}
+
+.register-button {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.register-button:hover {
+  background-color: #e0e0e0;
 }
 
 /* 菜单项 */

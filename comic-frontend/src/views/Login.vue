@@ -160,25 +160,28 @@ const goToRegister = () => {
 };
 
 // 登录处理
-const handleLogin = async () => {
-  try {
-    await loginFormRef.value.validate();
-  } catch (error) {
-    return;
-  }
+  const handleLogin = async () => {
+    try {
+      await loginFormRef.value.validate();
+    } catch (error) {
+      return;
+    }
 
-  isLoading.value = true;
-  try {
-    const res = await login(loginForm.value);
-    userStore.setUserInfo(res.data.token, res.data.username);
-    router.push('/home');
-  } catch (error) {
-    ElMessage.error(error.response?.data?.msg || '登录失败，请稍后重试');
-    console.error('登录失败：', error);
-  } finally {
-    isLoading.value = false;
-  }
-};
+    isLoading.value = true;
+    try {
+      const res = await login(loginForm.value);
+      // 从服务器响应中获取头像信息，如果存在则传递给setUserInfo
+      // 假设登录API返回的数据中包含avatar字段
+      const avatar = res.data.avatar || '';
+      userStore.setUserInfo(res.data.token, res.data.username, avatar);
+      router.push('/home');
+    } catch (error) {
+      ElMessage.error(error.response?.data?.msg || '登录失败，请稍后重试');
+      console.error('登录失败：', error);
+    } finally {
+      isLoading.value = false;
+    }
+  };
 
 // 第三方登录提示
 const showToast = (message) => {

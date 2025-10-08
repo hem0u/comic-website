@@ -8,7 +8,7 @@
       <div class="user-info-wrapper">
         <div class="avatar-box">
           <el-avatar :size="100" class="user-avatar">
-            <img :src="userInfo?.avatar || 'https://picsum.photos/200'" alt="用户头像" />
+            <img :src="getAvatarUrl(userInfo?.avatar) || 'https://picsum.photos/200'" alt="用户头像" />
           </el-avatar>
         </div>
         <div class="user-meta">
@@ -136,6 +136,26 @@ const handleLogout = () => {
   localStorage.removeItem('token');
   router.push('/login');
   ElMessage.success('已成功退出登录');
+};
+
+// 处理头像路径，确保正确显示
+const getAvatarUrl = (avatarPath) => {
+  // 如果没有头像，返回空字符串
+  if (!avatarPath) return '';
+  
+  // 如果是绝对路径或者已经是完整的URL，则直接返回
+  if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
+    return avatarPath;
+  }
+  
+  // 处理相对路径
+  if (avatarPath.startsWith('../assets/')) {
+    // 将 ../assets/ 转换为 ./assets/
+    return avatarPath.replace('../assets/', './assets/');
+  }
+  
+  // 其他情况，直接返回
+  return avatarPath;
 };
 
 // 加载用户信息
