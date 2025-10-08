@@ -27,9 +27,7 @@
               ref="searchInput"
               @keydown.enter="handleSearch"
           >
-          <button class="search-btn" @click="handleSearch">
-            <i class="fa fa-search"></i>
-          </button>
+          <i class="fa fa-search search-icon" @click="handleSearch"></i>
         </div>
 
         <!-- 用户图标 -->
@@ -91,7 +89,7 @@
         <i class="fa fa-cog"></i>
         <span>设置</span>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="handleLogout">
         <i class="fa fa-sign-out"></i>
         <span>退出登录</span>
       </div>
@@ -177,6 +175,27 @@ const updateBodyScroll = () => {
   }
 };
 
+// 退出登录处理函数
+const handleLogout = () => {
+  // 显示确认对话框
+  if (confirm('确定要退出登录吗？')) {
+    // 清除用户登录状态（实际应用中应该清除localStorage中的token等）
+    localStorage.removeItem('token');
+    localStorage.removeItem('userInfo');
+    
+    // 关闭用户菜单
+    closeUserMenu();
+    
+    // 显示退出成功消息
+    ElMessage.success('退出登录成功');
+    
+    // 重定向到登录页面（这里假设登录页面路径为/login）
+    setTimeout(() => {
+      router.push('/login');
+    }, 1000);
+  }
+};
+
 // 组件卸载时恢复滚动
 onUnmounted(() => {
   document.body.style.overflow = 'auto';
@@ -250,41 +269,47 @@ onUnmounted(() => {
 
 /* 搜索框 */
 .search-container {
-  display: flex;
-  align-items: center;
+  position: relative;
   max-width: 500px;
   margin-right: 20px;
+  transition: border 0.2s;
+}
+
+.search-container:focus-within {
+  border: 1px solid #ff7eb3;
+  border-radius: 4px;
+  padding: 2px;
 }
 
 .search-input {
   width: 280px;
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd; /* 浅灰色边框 */
-  border-radius: 4px 0 0 4px;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
   outline: none;
   font-size: 14px;
-  background-color: #f9f9f9; /* 浅灰色背景 */
+  background-color: #e9e9e9; /* 更深的灰色背景 */
   color: #333; /* 深灰色文字 */
   transition: all 0.2s;
 }
 
 .search-input:focus {
-  border-color: #ff7eb3; /* 粉色焦点边框 */
   background-color: #fff;
 }
 
-.search-btn {
-  background-color: #333; /* 深灰色按钮 */
-  color: #fff; /* 白色图标 */
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0 4px 4px 0;
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: color 0.2s;
+  z-index: 1;
 }
 
-.search-btn:hover {
-  background-color: #ff7eb3; /* 粉色悬停效果 */
+.search-icon:hover {
+  color: #ff7eb3; /* 粉色悬停效果 */
 }
 
 /* 用户图标 */
