@@ -43,6 +43,12 @@ const routes = [
         name: 'UserCenter',
         component: () => import('../views/UserCenter.vue'),
         meta: { requireAuth: true }  // 个人中心需要登录
+    },
+    {
+        path: '/search',
+        name: 'Search',
+        component: () => import('../views/SearchPage.vue'),
+        meta: { requireAuth: false }  // 搜索页面不需要登录
     }
 ];
 

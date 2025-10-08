@@ -24,6 +24,7 @@
               type="text"
               placeholder="搜索漫画..."
               class="search-input"
+              ref="searchInput"
               @keydown.enter="handleSearch"
           >
           <button class="search-btn" @click="handleSearch">
@@ -112,6 +113,9 @@ const props = defineProps({
   }
 });
 
+// 搜索框引用
+const searchInput = ref(null);
+
 const emit = defineEmits(['open-menu']);
 
 // 用户菜单状态
@@ -138,7 +142,16 @@ const onMenuClick = () => {
 };
 
 const handleSearch = () => {
-  ElMessage.info('搜索功能即将上线');
+  if (!searchInput.value) return;
+  const keyword = searchInput.value.value.trim();
+  if (!keyword) {
+    ElMessage.warning('请输入搜索关键词');
+    return;
+  }
+  // 跳转到搜索页面并传递关键词
+  router.push({ path: '/search', query: { keyword: encodeURIComponent(keyword) } });
+  // 清空搜索框
+  searchInput.value.value = '';
 };
 
 // 跳转到个人中心
