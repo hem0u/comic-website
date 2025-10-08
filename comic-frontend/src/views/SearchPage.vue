@@ -27,19 +27,20 @@
             </template>
           </el-input>
           <el-button 
-            type="primary" 
+            :type="showFilters ? 'primary' : 'default'" 
             @click="toggleFilters" 
             class="filter-button"
+            :class="{ 'active': showFilters }"
             size="small"
           >
             <i class="el-icon-arrow-down filter-arrow" :class="{ 'rotated': showFilters }"></i>
-            显示过滤器
+            {{ showFilters ? '隐藏过滤器' : '显示过滤器' }}
           </el-button>
         </div>
 
         <!-- 过滤器选项 -->
         <div v-if="showFilters" class="filter-options">
-          <div class="filter-row">
+          <div class="filter-row single-row">
             <div class="filter-item">
               <label>排序方式</label>
               <el-select v-model="sortBy" class="filter-select">
@@ -57,41 +58,9 @@
               </el-select>
             </div>
             <div class="filter-item">
-              <label>内容评级</label>
-              <el-select v-model="contentRating" class="filter-select">
-                <el-option label="任意" value="any"></el-option>
-                <el-option label="安全" value="safe"></el-option>
-                <el-option label="限制级" value="explicit"></el-option>
-              </el-select>
-            </div>
-            <div class="filter-item">
-              <label>杂志受众</label>
-              <el-select v-model="magazineDemographic" class="filter-select">
-                <el-option label="任意" value="any"></el-option>
-                <el-option label="少年" value="shounen"></el-option>
-                <el-option label="少女" value="shoujo"></el-option>
-                <el-option label="青年" value="seinen"></el-option>
-                <el-option label="女性" value="josei"></el-option>
-              </el-select>
-            </div>
-            <div class="filter-item">
               <label>作者</label>
               <el-select v-model="authors" class="filter-select">
                 <el-option label="任意" value="any"></el-option>
-              </el-select>
-            </div>
-          </div>
-          <div class="filter-row">
-            <div class="filter-item">
-              <label>画师</label>
-              <el-select v-model="artists" class="filter-select">
-                <el-option label="任意" value="any"></el-option>
-              </el-select>
-            </div>
-            <div class="filter-item">
-              <label>原始语言</label>
-              <el-select v-model="originalLanguages" class="filter-select">
-                <el-option label="所有语言" value="all"></el-option>
               </el-select>
             </div>
             <div class="filter-item">
@@ -110,27 +79,21 @@
                 <el-option label="已完结" value="completed"></el-option>
               </el-select>
             </div>
-            <div class="filter-item">
-              <el-checkbox v-model="hasTranslatedChapters">有翻译章节</el-checkbox>
-              <el-select v-model="translatedLanguage" class="filter-select">
-                <el-option label="任意语言" value="any"></el-option>
-              </el-select>
-            </div>
           </div>
-          
-          <!-- 过滤器按钮组 -->
-          <div class="filter-buttons">
-            <el-button type="text" class="reset-filters-btn" @click="resetFilters">重置过滤器</el-button>
-            <el-button type="text" class="feeling-lucky-btn" @click="imFeelingLucky">幸运搜索</el-button>
-            <el-button 
-              type="primary" 
-              @click="performSearch" 
-              class="search-button"
-            >
-              <i class="el-icon-search"></i>
-              搜索
-            </el-button>
-          </div>
+        </div>
+        
+        <!-- 搜索操作按钮组 - 始终显示在过滤器按钮下方 -->
+        <div class="action-buttons">
+          <el-button type="text" class="reset-filters-btn" @click="resetFilters">重置过滤器</el-button>
+          <el-button type="text" class="feeling-lucky-btn" @click="imFeelingLucky">幸运搜索</el-button>
+          <el-button 
+            type="primary" 
+            @click="performSearch" 
+            class="search-button"
+          >
+            <i class="el-icon-search"></i>
+            搜索
+          </el-button>
         </div>
       </div>
 
@@ -230,16 +193,10 @@ const showFilters = ref(true);
 // 过滤器选项
 const sortBy = ref('none');
 const filterTags = ref('any');
-const contentRating = ref('any');
-const magazineDemographic = ref('any');
 const authors = ref('any');
-const artists = ref('any');
-const originalLanguages = ref('all');
 const minYear = ref('');
 const maxYear = ref('');
 const publicationStatus = ref('any');
-const hasTranslatedChapters = ref(false);
-const translatedLanguage = ref('any');
 
 // 漫画列表数据 - 添加符合图片样式的模拟数据
 const comicList = ref([
@@ -337,16 +294,10 @@ const toggleFilters = () => {
     advancedKeyword.value = '';
     sortBy.value = 'none';
     filterTags.value = 'any';
-    contentRating.value = 'any';
-    magazineDemographic.value = 'any';
     authors.value = 'any';
-    artists.value = 'any';
-    originalLanguages.value = 'all';
     minYear.value = '';
     maxYear.value = '';
     publicationStatus.value = 'any';
-    hasTranslatedChapters.value = false;
-    translatedLanguage.value = 'any';
     comicList.value = [];
     total.value = 0;
     ElMessage.info('过滤器已重置');
@@ -542,54 +493,85 @@ onMounted(() => {
   color: #666;
 }
 
-/* 搜索输入框样式 - 精确匹配图片 */
+/* 搜索输入框样式 - 灰色无边框带圆角 */
 :deep(.search-input .el-input__wrapper) {
-  border-radius: 2px;
-  border: 1px solid #ccc;
+  border-radius: 8px;
+  border: none;
   box-shadow: none;
   transition: all 0.2s ease;
-  background-color: #fff;
+  background-color: #f5f5f5;
 }
 
 :deep(.search-input .el-input__wrapper:hover) {
-  border-color: #999;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  background-color: #e8e8e8;
 }
 
 :deep(.search-input .el-input__wrapper.is-focus) {
-  border-color: #409eff;
-  box-shadow: 0 0 0 1px rgba(64, 158, 255, 0.2);
+  background-color: #e8e8e8;
+  box-shadow: 0 0 0 2px rgba(255, 126, 179, 0.3);
 }
 
 :deep(.search-input .el-input__inner) {
   font-size: 14px;
-  color: #333;
+  color: #000;
   padding: 8px 12px;
   height: 40px;
+  background-color: transparent;
 }
 
 .search-icon {
-  color: #999;
+  color: #666;
+  font-size: 16px;
+  margin-right: 4px;
 }
 
-/* 过滤器按钮 */
+/* 过滤器按钮 - 初始浅灰色，激活状态粉色 */
 .filter-button {
   display: flex;
   align-items: center;
-  gap: 4px;
-  color: #fff;
+  gap: 6px;
   font-size: 14px;
   padding: 0 12px;
   height: 40px;
   border: none;
-  border-radius: 2px;
-  background-color: #ff4500;
+  border-radius: 8px;
+  background-color: #e0e0e0;
+  color: #666;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+/* 过滤器按钮箭头图标样式 */
+.filter-arrow {
+  font-size: 12px;
+  transition: transform 0.2s ease;
+  color: #666;
+}
+
+/* 激活状态下的箭头图标颜色 */
+.filter-button.active .filter-arrow {
+  color: #fff;
+}
+
 .filter-button:hover {
-  background-color: #ff6347;
+  background-color: #d0d0d0;
+  color: #333;
+}
+
+/* 确保图标正确显示 */
+.el-icon-search,
+.el-icon-arrow-down {
+  display: inline-block;
+}
+
+/* 激活状态 - 显示过滤器时 */
+.filter-button.active {
+  background-color: #ff7eb3;
+  color: #fff;
+}
+
+.filter-button.active:hover {
+  background-color: #ff5e99;
   color: #fff;
 }
 
@@ -602,7 +584,7 @@ onMounted(() => {
   transform: rotate(180deg);
 }
 
-/* 过滤器按钮组 */
+/* 过滤器按钮组 - 已移动到外部 */
 .filter-buttons {
   display: flex;
   gap: 12px;
@@ -610,47 +592,73 @@ onMounted(() => {
   margin-left: 0;
 }
 
+/* 单行显示的过滤器 */
+.filter-row.single-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+}
+
+.filter-item {
+  flex-shrink: 0;
+  margin-bottom: 0 !important;
+}
+
+/* 搜索操作按钮组 - 始终显示在过滤器按钮下方，右对齐 */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 0;
+  width: 100%;
+}
+
 .reset-filters-btn,
 .feeling-lucky-btn {
   color: #666;
   font-size: 14px;
-  padding: 0 12px;
-  height: 36px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  background-color: #fff;
+  padding: 0 16px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background-color: #e0e0e0;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .reset-filters-btn:hover,
 .feeling-lucky-btn:hover {
-  border-color: #999;
   color: #333;
+  background-color: #d0d0d0;
 }
 
 /* 搜索按钮 */
 .search-button {
   height: 40px;
   min-width: 100px;
-  padding: 0 20px;
+  padding: 0 16px;
   font-size: 14px;
   font-weight: 500;
   color: #fff;
-  background-color: #ff4500;
+  background-color: #ff7eb3;
   border: none;
-  border-radius: 2px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  float: right;
 }
 
 .search-button:hover {
-  background-color: #ff6347;
+  background-color: #ff5e99;
 }
 
 /* 布局切换器 */
