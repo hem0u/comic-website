@@ -4,7 +4,7 @@
     <div class="search-header">
       <!-- 返回按钮 -->
       <div class="back-button" @click="goBack">
-        <i class="el-icon-arrow-left"></i>
+        <i class="fa fa-arrow-left"></i>
       </div>
       <!-- 页面标题 -->
       <h1 class="page-title">高级搜索</h1>
@@ -24,7 +24,7 @@
               @input="handleKeywordInput"
             >
             <template #prefix>
-              <i class="el-icon-search search-icon"></i>
+              <i class="fa fa-search search-icon"></i>
             </template>
           </el-input>
           <el-button 
@@ -34,8 +34,9 @@
             :class="{ 'active': showFilters }"
             size="small"
           >
-            <i class="el-icon-arrow-down filter-arrow" :class="{ 'rotated': showFilters }"></i>
-            {{ showFilters ? '隐藏过滤器' : '显示过滤器' }}
+            <i v-if="showFilters" class="fa fa-chevron-up"></i>
+            <i v-else class="fa fa-chevron-down"></i>
+            <span style="margin-left: 5px;">{{ showFilters ? '隐藏过滤器' : '显示过滤器' }}</span>
           </el-button>
         </div>
 
@@ -106,7 +107,7 @@
           @click="layout = 'list'" 
           title="列表布局"
         >
-          <span>列表</span>
+          <i class="fa fa-list"></i>
         </button>
         <button 
           type="button" 
@@ -114,7 +115,7 @@
           @click="layout = 'grid'" 
           title="双列布局"
         >
-          <span>双列</span>
+          <i class="fa fa-th-large"></i>
         </button>
         <button 
           type="button" 
@@ -122,7 +123,7 @@
           @click="layout = 'large'" 
           title="大图布局"
         >
-          <span>大图</span>
+          <i class="fa fa-image"></i>
         </button>
       </div>
     </div>
@@ -150,7 +151,7 @@
           <div class="comic-details">
             <div class="comic-title">{{ comic.title || '未知标题' }}</div>
             <!-- 作者和分类信息 -->
-            <div class="comic-author-category" v-if="layout === 'list'">
+            <div class="comic-author-category" v-if="layout === 'list' || layout === 'grid'">
               <div class="comic-author">
                 <span class="label">作者：</span>
                 <span class="value">{{ comic.authorName || '未知作者' }}</span>
@@ -172,7 +173,7 @@
               </div>
               <div class="comments">{{ comic.commentCount || 'N/A' }} 评论</div>
               <div class="views">{{ comic.viewCount || 'N/A' }} 浏览</div>
-              <div class="status-badge">{{ getStatusText(comic.status) }}</div>
+              <el-tag :type="getStatusType(comic.status)">{{ getStatusText(comic.status) }}</el-tag>
             </div>
             <!-- 描述 -->
             <div class="comic-description" v-if="comic.description">
@@ -261,13 +262,13 @@ const fetchComicList = async () => {
     total.value = res.data.total || 0;
 
   } catch (error) {
-    console.error('获取漫画列表失败', error);
-    // 发生错误时清空数据，不显示模拟数据
-    comicList.value = [];
-    total.value = 0;
-  } finally {
-    loading.value = false;
-  }
+        console.error('获取漫画列表失败', error);
+        // 发生错误时清空数据，不显示模拟数据
+        comicList.value = [];
+        total.value = 0;
+      } finally {
+        loading.value = false;
+      }
 };
 
 // 执行搜索
@@ -410,10 +411,15 @@ onMounted(() => {
 .back-button {
   cursor: pointer;
   color: #333;
-  font-size: 18px;
+  font-size: 20px;
   padding: 8px;
   border-radius: 4px;
   transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
 }
 
 .back-button:hover {
@@ -546,6 +552,7 @@ onMounted(() => {
   color: #666;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 120px;
 }
 
 /* 过滤器按钮箭头图标样式 */
@@ -616,7 +623,7 @@ onMounted(() => {
 .action-buttons {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
   margin-top: 3px;
   padding: 0;
   width: 100%;
@@ -626,14 +633,14 @@ onMounted(() => {
 .feeling-lucky-btn {
   color: #666;
   font-size: 14px;
-  padding: 0 16px;
+  padding: 0 12px;
   height: 40px;
   border: none;
   border-radius: 8px;
   background-color: #e0e0e0;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 100px;
+  min-width: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -648,8 +655,8 @@ onMounted(() => {
 /* 搜索按钮 */
 .search-button {
   height: 40px;
-  min-width: 100px;
-  padding: 0 16px;
+  min-width: 120px;
+  padding: 0 12px;
   font-size: 14px;
   font-weight: 500;
   color: #fff;
@@ -672,7 +679,7 @@ onMounted(() => {
 .layout-switcher {
   display: flex;
   width: fit-content;
-  margin-top: 12px;
+  margin-top: 17px;
   margin-bottom: 20px;
   margin-left: auto;
   border-radius: 4px;
@@ -833,8 +840,16 @@ onMounted(() => {
   display: none;
 }
 
+/* 允许大图布局下显示简介 */
 .comic-large .comic-description {
-  display: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #666;
 }
 
 /* 漫画项 */
@@ -945,11 +960,10 @@ onMounted(() => {
   font-size: 14px;
 }
 
-.status-badge {
-  padding: 2px 8px;
-  background-color: #e6f7ff;
-  color: #409eff;
-  border-radius: 12px;
+:deep(.comic-meta .el-tag) {
+  height: 24px;
+  line-height: 24px;
+  padding: 0 8px;
   font-size: 12px;
 }
 
