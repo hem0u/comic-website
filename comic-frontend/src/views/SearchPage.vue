@@ -21,7 +21,8 @@
               class="search-input"
               clearable
               @keyup.enter="performSearch"
-          >
+              @input="handleKeywordInput"
+            >
             <template #prefix>
               <i class="el-icon-search search-icon"></i>
             </template>
@@ -97,13 +98,32 @@
         </div>
       </div>
 
-      <!-- 布局切换按钮 -->
+      <!-- 布局切换器 -->
       <div class="layout-switcher">
-        <el-button-group>
-          <el-button type="text" :class="{ active: layout === 'list' }" @click="layout = 'list'" icon="el-icon-menu"></el-button>
-          <el-button type="text" :class="{ active: layout === 'grid' }" @click="layout = 'grid'" icon="el-icon-s-grid"></el-button>
-          <el-button type="text" :class="{ active: layout === 'large' }" @click="layout = 'large'" icon="el-icon-picture-outline"></el-button>
-        </el-button-group>
+        <button 
+          type="button" 
+          :class="['layout-btn', { active: layout === 'list' }]"
+          @click="layout = 'list'" 
+          title="列表布局"
+        >
+          <span>列表</span>
+        </button>
+        <button 
+          type="button" 
+          :class="['layout-btn', { active: layout === 'grid' }]"
+          @click="layout = 'grid'" 
+          title="双列布局"
+        >
+          <span>双列</span>
+        </button>
+        <button 
+          type="button" 
+          :class="['layout-btn', { active: layout === 'large' }]"
+          @click="layout = 'large'" 
+          title="大图布局"
+        >
+          <span>大图</span>
+        </button>
       </div>
     </div>
 
@@ -116,8 +136,8 @@
         element-loading-text="正在搜索漫画..."
         element-loading-spinner="el-icon-loading"
     >
-      <!-- 漫画搜索结果列表 -->
-      <div class="comic-grid">
+      <!-- 漫画搜索结果列表 - 动态切换布局 -->
+      <div :class="['comic-container', `comic-${layout}`]">
         <div v-for="comic in comicList" :key="comic.id" class="comic-item" @click="goToRead(comic.id)">
           <div class="comic-cover-wrapper">
             <img
@@ -129,6 +149,17 @@
           </div>
           <div class="comic-details">
             <div class="comic-title">{{ comic.title || '未知标题' }}</div>
+            <!-- 作者和分类信息 -->
+            <div class="comic-author-category" v-if="layout === 'list'">
+              <div class="comic-author">
+                <span class="label">作者：</span>
+                <span class="value">{{ comic.authorName || '未知作者' }}</span>
+              </div>
+              <div class="comic-category">
+                <span class="label">分类：</span>
+                <span class="value">{{ comic.categoryName || '未知分类' }}</span>
+              </div>
+            </div>
             <!-- 标签区域 -->
             <div class="comic-tags">
               <span v-for="tag in comic.tags" :key="tag" class="comic-tag">{{ tag }}</span>
@@ -185,10 +216,10 @@ const router = useRouter();
 const route = useRoute();
 
 // 布局模式
-const layout = ref('grid'); // 'list', 'grid', 'large'
+const layout = ref('list'); // 'list', 'grid', 'large'
 
 // 过滤器显示状态
-const showFilters = ref(true);
+const showFilters = ref(false);
 
 // 过滤器选项
 const sortBy = ref('none');
@@ -198,37 +229,8 @@ const minYear = ref('');
 const maxYear = ref('');
 const publicationStatus = ref('any');
 
-// 漫画列表数据 - 添加符合图片样式的模拟数据
-const comicList = ref([
-  {
-    id: 1,
-    title: "Sewayaki Kitsune no Senko-san",
-    cover: "https://picsum.photos/300/400?random=1",
-    authorName: "Ritsu Yuuki",
-    categoryName: "Comedy",
-    status: 1,
-    viewCount: 54000,
-    collectCount: 388,
-    rating: 8.01,
-    commentCount: 209,
-    description: "Like many hardworking members of the workforce, Kuroto Nakano is perpetually stressed out by his job. Still, since he lives alone, he must carry on to sustain himself. Little do humans like Kuroto know, this stress takes the form of darkness residing within a person's body and will bring one's life to ruin.",
-    tags: ["Animals", "Romance", "Comedy", "Office Workers", "Magic", "Fantasy", "Monster Girls", "Slice of Life"]
-  },
-  {
-    id: 2,
-    title: "Mobile Suit Gundam: The Witch from Mercury - Sulemio Cuddle",
-    cover: "https://picsum.photos/300/400?random=2",
-    authorName: "Bandai Namco",
-    categoryName: "Romance",
-    status: 1,
-    viewCount: 29000,
-    collectCount: 368,
-    rating: 8.39,
-    commentCount: 203,
-    description: "A heartwarming spinoff from the popular Gundam series focusing on the relationship between Suletta and Miorine.",
-    tags: ["Doujinshi", "Oneshot", "Romance", "Girls Love", "Web Comic"]
-  }
-]);
+// 漫画列表数据 - 初始化为空数组，避免显示示例数据
+const comicList = ref([]);
 // 分页参数
 const currentPage = ref(1);
 const pageSize = ref(8);
@@ -254,18 +256,13 @@ const fetchComicList = async () => {
       throw new Error('接口返回格式异常');
     }
 
-    // 如果返回有数据，使用API数据；如果没有数据或关键词为空，清空列表
-    if (res.data.list && res.data.list.length > 0) {
-      comicList.value = res.data.list;
-      total.value = res.data.total || 0;
-    } else {
-      comicList.value = [];
-      total.value = 0;
-    }
+    // 始终使用API返回的数据
+    comicList.value = res.data.list || [];
+    total.value = res.data.total || 0;
 
   } catch (error) {
     console.error('获取漫画列表失败', error);
-    // 发生错误时清空列表，不显示提示
+    // 发生错误时清空数据，不显示模拟数据
     comicList.value = [];
     total.value = 0;
   } finally {
@@ -355,24 +352,34 @@ const getStatusType = (status) => {
 watch(
   () => route.query.keyword,
   (newKeyword) => {
-    if (newKeyword) {
+    // 只有在主动导航时才更新搜索框内容，防止刷新页面时自动填充
+    if (newKeyword && !isInitialLoad.value) {
       advancedKeyword.value = decodeURIComponent(newKeyword);
       currentPage.value = 1;
       fetchComicList();
     }
   },
-  { immediate: true }
+  { immediate: false }
 );
+
+// 初始加载标记
+const isInitialLoad = ref(true);
+
+// 当用户开始输入时标记为非初始加载
+const handleKeywordInput = () => {
+  isInitialLoad.value = false;
+};
 
 // 页面挂载时初始化
 onMounted(() => {
   if (route.query.keyword) {
     // 已经在watch中处理
   } else {
-    // 如果没有搜索关键词，清空列表
-    comicList.value = [];
-    total.value = 0;
+    // 如果没有搜索关键词，默认加载所有漫画
+    performSearch();
   }
+  // 标记为已完成初始加载
+  isInitialLoad.value = false;
 });
 </script>
 
@@ -588,7 +595,7 @@ onMounted(() => {
 .filter-buttons {
   display: flex;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 12px;
   margin-left: 0;
 }
 
@@ -610,7 +617,7 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 3px;
   padding: 0;
   width: 100%;
 }
@@ -664,39 +671,46 @@ onMounted(() => {
 /* 布局切换器 */
 .layout-switcher {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
-  float: right;
-}
-
-:deep(.layout-switcher .el-button-group) {
-  border: 1px solid #ccc;
-  border-radius: 2px;
+  width: fit-content;
+  margin-top: 12px;
+  margin-bottom: 20px;
+  margin-left: auto;
+  border-radius: 4px;
   overflow: hidden;
+  clear: both;
 }
 
-:deep(.layout-switcher .el-button) {
-  color: #666;
+.layout-btn {
+  color: #000;
+  background-color: #f0f0f0;
   border: none;
-  border-right: 1px solid #ccc;
-  background-color: #fff;
-  border-radius: 0;
-  padding: 6px 12px;
+  padding: 0 16px;
+  height: 40px;
+  font-size: 14px;
+  cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 4px;
 }
 
-:deep(.layout-switcher .el-button:last-child) {
-  border-right: none;
+.layout-btn:last-child {
+  margin-right: 0;
 }
 
-:deep(.layout-switcher .el-button:hover) {
-  background-color: #f5f5f5;
+.layout-btn:hover {
   color: #333;
+  background-color: #e0e0e0;
 }
 
-:deep(.layout-switcher .el-button.active) {
-  background-color: #e6f7ff;
-  color: #409eff;
+.layout-btn.active {
+  color: #fff;
+  background-color: #000;
 }
 
 /* 广告横幅 */
@@ -718,12 +732,109 @@ onMounted(() => {
   min-height: 400px;
 }
 
-/* 漫画网格 */
+/* 漫画容器基础样式 */
+.comic-container {
+  margin-bottom: 20px;
+}
+
+/* 双列布局 - 默认 */
 .comic-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.comic-grid .comic-item {
+  flex-direction: row;
+  height: 180px;
+  width: 100%;
+}
+
+.comic-grid .comic-cover-wrapper {
+  width: 100px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.comic-grid .comic-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+}
+
+.comic-grid .comic-description {
+  margin-top: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 列表布局 */
+.comic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comic-list .comic-item {
+  flex-direction: row;
+  height: 180px;
+}
+
+.comic-list .comic-cover-wrapper {
+  width: 120px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.comic-list .comic-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.comic-list .comic-description {
+  margin-top: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* 大图布局 */
+.comic-large {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.comic-large .comic-item {
+  text-align: center;
+}
+
+.comic-large .comic-cover-wrapper {
+  height: 240px;
+}
+
+.comic-large .comic-details {
+  padding: 12px 8px;
+}
+
+.comic-large .comic-title {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.comic-large .comic-meta {
+  display: none;
+}
+
+.comic-large .comic-description {
+  display: none;
 }
 
 /* 漫画项 */
@@ -773,6 +884,28 @@ onMounted(() => {
   color: #333;
   margin-bottom: 12px;
   line-height: 1.4;
+}
+
+/* 作者和分类信息样式 */
+.comic-author-category {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #606266;
+}
+
+.comic-author, .comic-category {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+.comic-author-category .label {
+  color: #909399;
+  font-weight: normal;
+}
+
+.comic-author-category .value {
+  color: #606266;
+  margin-left: 4px;
 }
 
 /* 漫画标签 */
