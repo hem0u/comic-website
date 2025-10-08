@@ -171,7 +171,6 @@ const goToRegister = () => {
     try {
       const res = await login(loginForm.value);
       // 从服务器响应中获取头像信息，如果存在则传递给setUserInfo
-      // 假设登录API返回的数据中包含avatar字段
       const avatar = res.data.avatar || '';
       userStore.setUserInfo(res.data.token, res.data.username, avatar);
       router.push('/home');

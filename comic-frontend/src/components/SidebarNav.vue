@@ -73,7 +73,7 @@ const closeSidebar = () => {
   background-color: #fff; /* 白色背景 */
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease, box-shadow 0.3s ease;
   z-index: 100;
   overflow-y: auto;
 }
@@ -148,5 +148,85 @@ const closeSidebar = () => {
   .sidebar {
     width: 230px; /* 相应调整响应式设计下的宽度 */
   }
+}
+
+/* 暗色主题样式 - 增强视觉效果 */
+:deep(.el-theme-dark) .sidebar {
+  background-color: var(--el-bg-color);
+  color: var(--el-text-color-primary);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.6);
+  border-right: 1px solid var(--el-border-color);
+  transition: all 0.3s ease;
+}
+
+:deep(.el-theme-dark) .sidebar-header {
+  border-bottom: 1px solid var(--el-border-color);
+  background-color: var(--el-bg-color-page);
+}
+
+:deep(.el-theme-dark) .logo span {
+  color: var(--el-text-color-primary);
+  font-weight: 700;
+}
+
+:deep(.el-theme-dark) .close-btn {
+  color: var(--el-text-color-secondary);
+  background-color: var(--el-bg-color-overlay);
+  border: 1px solid var(--el-border-color);
+  transition: all 0.2s ease;
+}
+
+:deep(.el-theme-dark) .close-btn:hover {
+  color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+  background-color: var(--el-bg-color-soft);
+  transform: scale(1.05);
+}
+
+:deep(.el-theme-dark) .nav-item {
+  border-bottom: 1px solid var(--el-border-color-light);
+}
+
+:deep(.el-theme-dark) .nav-item a {
+  color: var(--el-text-color-secondary);
+  background-color: transparent;
+  transition: all 0.2s ease;
+}
+
+:deep(.el-theme-dark) .nav-item a:hover {
+  color: var(--el-text-color-primary);
+  background-color: var(--el-bg-color-overlay);
+  transform: translateX(5px);
+}
+
+html.el-theme-dark .nav-item.active {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-left: 4px solid var(--el-color-primary) !important;
+}
+
+html.el-theme-dark .nav-item.active a {
+  background-color: transparent !important;
+  color: var(--el-color-primary) !important;
+}
+
+html.el-theme-dark .nav-icon {
+  color: var(--el-text-color-secondary) !important;
+  font-size: 18px !important;
+  margin-right: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+html.el-theme-dark .nav-item a:hover .nav-icon {
+  color: var(--el-text-color-primary) !important;
+  transform: scale(1.1) !important;
+}
+
+html.el-theme-dark .nav-item.active .nav-icon {
+  color: var(--el-color-primary) !important;
+  transform: scale(1.1) !important;
+}
+
+html.el-theme-dark .nav-text {
+  color: inherit !important;
 }
 </style>

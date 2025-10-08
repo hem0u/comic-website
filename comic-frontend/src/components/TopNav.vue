@@ -33,8 +33,7 @@
         <!-- 用户头像 -->
         <div class="user-icon-wrapper" ref="userIconWrapper">
           <div class="user-icon" @click="toggleUserMenu">
-            <img v-if="userStore.token && userStore.avatar" :src="getAvatarUrl(userStore.avatar)" alt="User Avatar" class="user-avatar">
-            <i v-else class="fa fa-user-circle"></i>
+            <img :src="getAvatarUrl(userStore.avatar) || 'https://picsum.photos/200'" alt="用户头像" class="user-avatar">
           </div>
         </div>
       </div>
@@ -62,9 +61,12 @@
           <i class="fa fa-cog"></i>
           <span>设置</span>
         </div>
-        <div class="menu-item">
+        <div class="menu-item" @click="toggleTheme">
           <i class="fa fa-moon-o"></i>
           <span>主题</span>
+          <div class="theme-toggle">
+            <i class="fa fa-sun-o"></i>
+          </div>
         </div>
         <div class="menu-divider"></div>
         <button class="login-button" @click="goToLogin">登录</button>
@@ -76,13 +78,10 @@
     <div v-else>
       <div class="menu-header">
         <div class="avatar">
-          <img v-if="userStore.avatar" :src="getAvatarUrl(userStore.avatar)" alt="User Avatar" class="user-avatar">
-          <i v-else class="fa fa-user-circle"></i>
+          <img :src="getAvatarUrl(userStore.avatar) || 'https://picsum.photos/200'" alt="用户头像" class="user-avatar menu-avatar">
         </div>
-        <div class="user-info">
-          <div class="username">{{ userStore.username }}</div>
-          <div class="user-role">User</div>
-        </div>
+        <div class="username">{{ userStore.username }}</div>
+        <div class="user-role">User</div>
       </div>
       <div class="menu-divider"></div>
       <div class="menu-items">
@@ -102,19 +101,28 @@
           <i class="fa fa-users"></i>
           <span>我的群组</span>
         </div>
-        <div class="menu-item">
-          <i class="fa fa-bell"></i>
-          <span>我的报告</span>
-        </div>
-        <div class="menu-item">
-          <i class="fa fa-bullhorn"></i>
-          <span>公告</span>
-        </div>
         <div class="menu-divider"></div>
         <div class="menu-item">
           <i class="fa fa-cog"></i>
           <span>设置</span>
         </div>
+        <div class="menu-item" @click="toggleTheme">
+          <i class="fa fa-paint-brush"></i>
+          <span>主题</span>
+          <div class="theme-toggle">
+            <i :class="isDarkTheme ? 'fa fa-moon-o' : 'fa fa-sun-o'"></i>
+          </div>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-item">
+          <i class="fa fa-globe"></i>
+          <span>界面语言</span>
+          <div class="language-selector">
+            <span>中文</span>
+            <i class="fa fa-chevron-down"></i>
+          </div>
+        </div>
+        <div class="menu-divider"></div>
         <div class="menu-item" @click="handleLogout">
           <i class="fa fa-sign-out"></i>
           <span>退出登录</span>
@@ -132,8 +140,8 @@ import { useUserStore } from '../stores/userStore';  // 导入用户状态存储
 
 // 处理头像路径，确保正确显示
 const getAvatarUrl = (avatarPath) => {
-  // 如果没有头像，返回空字符串
-  if (!avatarPath) return '';
+  // 如果没有头像，返回默认头像
+  if (!avatarPath) return 'https://picsum.photos/200';
   
   // 如果是绝对路径或者已经是完整的URL，则直接返回
   if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
@@ -141,15 +149,15 @@ const getAvatarUrl = (avatarPath) => {
   }
   
   // 处理相对路径
-  // 这里假设从数据库获取的相对路径是相对于项目根目录的
-  // 需要调整为相对于当前组件的路径
-  if (avatarPath.startsWith('../assets/')) {
-    // 将 ../assets/ 转换为 ./assets/
-    return avatarPath.replace('../assets/', './assets/');
+  // 将各种相对路径格式转换为正确的资源路径
+  if (avatarPath.startsWith('../assets/') || avatarPath.startsWith('./assets/')) {
+    // 提取相对路径中的文件名部分，然后使用 import.meta.url 构建正确的路径
+    const assetName = avatarPath.replace(/^\.\.?\/assets\//, '');
+    return new URL(`../assets/${assetName}`, import.meta.url).href;
   }
   
-  // 其他情况，直接返回
-  return avatarPath;
+  // 其他情况，返回默认头像
+  return 'https://picsum.photos/200';
 };
 
 const router = useRouter();
@@ -170,6 +178,31 @@ const emit = defineEmits(['open-menu']);
 // 用户菜单状态
 const isUserMenuOpen = ref(false);
 const userIconWrapper = ref(null);
+
+// 主题状态 - 使用ref来管理
+const isDarkTheme = ref(false);
+
+// 初始化时检查本地存储中的主题设置
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    isDarkTheme.value = true;
+    document.documentElement.classList.add('el-theme-dark');
+  }
+});
+
+// 切换主题的方法
+const toggleTheme = () => {
+  isDarkTheme.value = !isDarkTheme.value;
+  
+  if (isDarkTheme.value) {
+    document.documentElement.classList.add('el-theme-dark');
+    localStorage.setItem('theme', 'dark');
+  } else {
+    document.documentElement.classList.remove('el-theme-dark');
+    localStorage.setItem('theme', 'light');
+  }
+};
 
 // 计算菜单位置
 const menuPositionStyle = computed(() => {
@@ -278,6 +311,7 @@ onUnmounted(() => {
   background-color: #fff; /* 白色背景 */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 88;
+  transition: background-color 0.3s ease;
 }
 
 .top-nav-inner {
@@ -409,6 +443,12 @@ onUnmounted(() => {
     transition: border-color 0.2s;
   }
 
+  .menu-avatar {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
   .user-icon:hover .user-avatar {
     border-color: #ff7eb3;
   }
@@ -426,43 +466,206 @@ onUnmounted(() => {
 /* 菜单头部 */
 .menu-header {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 16px;
+  padding: 20px 16px;
   background-color: #f9f9f9;
+  text-align: center;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background-color: #ff7eb3;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 1.5rem;
-  margin-right: 12px;
-}
-
-.user-info {
-  flex: 1;
+  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .username {
   font-weight: 600;
   color: #333;
+  font-size: 16px;
   margin-bottom: 4px;
 }
 
 .user-role {
   font-size: 12px;
   color: #666;
+  margin-bottom: 8px;
+}
+
+/* 菜单项样式 */
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.menu-item i {
+  width: 20px;
+  margin-right: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.menu-item span {
+  flex: 1;
+}
+
+/* 主题切换和语言选择器样式 */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  color: #666;
+}
+
+.language-selector {
+  display: flex;
+  align-items: center;
+  color: #666;
+  font-size: 12px;
+}
+
+.language-selector i {
+  margin-left: 4px;
+  width: auto;
+}
+
+/* 分隔线样式 */
+.menu-divider {
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 4px 0;
 }
 
 /* 未登录状态样式 */
 .guest-menu {
   text-align: center;
   padding: 20px 0;
+}
+
+/* 暗色主题样式 - 高优先级 */
+html.el-theme-dark .top-nav {
+  background-color: var(--el-bg-color) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+  border-bottom: 1px solid var(--el-border-color) !important;
+}
+
+html.el-theme-dark .logo-text {
+  color: var(--el-text-color-primary) !important;
+  font-weight: 600 !important;
+}
+
+html.el-theme-dark .search-input {
+  background-color: var(--el-bg-color-overlay) !important;
+  border: 1px solid var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.el-theme-dark .search-input::placeholder {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.el-theme-dark .search-icon {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.el-theme-dark .user-icon {
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color) !important;
+}
+
+html.el-theme-dark .user-menu {
+  background-color: var(--el-bg-color) !important;
+  border: 1px solid var(--el-border-color) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7) !important;
+}
+
+html.el-theme-dark .user-info {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-bottom: 1px solid var(--el-border-color) !important;
+}
+
+html.el-theme-dark .username {
+  color: var(--el-text-color-primary) !important;
+  font-weight: 500 !important;
+}
+
+html.el-theme-dark .user-role {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.el-theme-dark .menu-item {
+  color: var(--el-text-color-primary) !important;
+  transition: all 0.2s ease !important;
+}
+
+html.el-theme-dark .menu-item:hover {
+  background-color: var(--el-bg-color-soft) !important;
+  color: var(--el-color-primary) !important;
+  transform: translateX(4px) !important;
+}
+
+html.el-theme-dark .menu-item i {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.el-theme-dark .menu-item:hover i {
+  color: var(--el-color-primary) !important;
+}
+
+html.el-theme-dark .menu-divider {
+  background-color: var(--el-border-color) !important;
+}
+
+html.el-theme-dark .login-button {
+  background-color: var(--el-color-primary) !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(64, 158, 255, 0.3) !important;
+}
+
+html.el-theme-dark .login-button:hover {
+  background-color: #66b3ff !important;
+  box-shadow: 0 4px 8px rgba(64, 158, 255, 0.4) !important;
+}
+
+html.el-theme-dark .register-button {
+  background-color: var(--el-bg-color-overlay) !important;
+  color: var(--el-text-color-primary) !important;
+  border: 1px solid var(--el-border-color) !important;
+}
+
+html.el-theme-dark .register-button:hover {
+  background-color: var(--el-bg-color-soft) !important;
+  border-color: var(--el-color-primary) !important;
+}
+
+.el-theme-dark .theme-toggle,
+.el-theme-dark .language-selector {
+  color: var(--el-text-color-secondary);
+  border-color: var(--el-border-color);
+}
+
+.el-theme-dark .theme-toggle:hover,
+.el-theme-dark .language-selector:hover {
+  color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+}
+
+.el-theme-dark .guest-name {
+  color: var(--el-text-color-primary);
 }
 
 .guest-avatar {
