@@ -398,6 +398,94 @@ const getStatusType = (status) => {
   color: #999; /* 浅灰色文字 */
 }
 
+/* 暗色主题样式 */
+html.el-theme-dark .category-card {
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.el-theme-dark .category-card:hover {
+  border-color: var(--el-color-primary) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.el-theme-dark .category-name {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark .comic-card {
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.el-theme-dark .comic-card:hover {
+  border-color: var(--el-color-primary) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.el-theme-dark .comic-title {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark .comic-author {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.el-theme-dark .empty-placeholder {
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.el-theme-dark .empty-text {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.el-theme-dark .section-title {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark .section-title::after {
+  background-color: var(--el-color-primary) !important;
+}
+
+/* 暗色主题标签样式 - 增加选择器特异性 */
+
+/* 暗色主题主页容器样式 */
+html.el-theme-dark .home-container {
+  background-color: var(--el-bg-color-page) !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+/* 连载中标签 - 使用灰色调 */
+html.el-theme-dark .comic-card :deep(.el-tag--primary) {
+  background-color: rgba(255, 255, 255, 0.1) !important; /* 白色半透明背景 */
+  color: var(--el-text-color-primary) !important; /* 白色文本 */
+  border-color: var(--el-border-color) !important; /* 灰色边框 */
+}
+
+/* 已完结标签 - 使用粉色调 */
+html.el-theme-dark .comic-card :deep(.el-tag--success) {
+  background-color: rgba(255, 126, 179, 0.2) !important; /* 粉色半透明背景 */
+  color: var(--el-color-primary) !important; /* 粉色文本 */
+  border-color: var(--el-color-primary) !important; /* 粉色边框 */
+}
+
+/* 确保所有可能的标签位置都被覆盖 */
+html.el-theme-dark :deep(.el-tag--primary) {
+  background-color: rgba(255, 255, 255, 0.1) !important; /* 白色半透明背景 */
+  color: var(--el-text-color-primary) !important; /* 白色文本 */
+  border-color: var(--el-border-color) !important; /* 灰色边框 */
+}
+
+html.el-theme-dark :deep(.el-tag--success) {
+  background-color: rgba(255, 126, 179, 0.2) !important; /* 粉色半透明背景 */
+  color: var(--el-color-primary) !important; /* 粉色文本 */
+  border-color: var(--el-color-primary) !important; /* 粉色边框 */
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
   .hero-banner {

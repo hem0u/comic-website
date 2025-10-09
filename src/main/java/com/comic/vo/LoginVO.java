@@ -7,4 +7,5 @@ public class LoginVO {
     private String token;  // JWT令牌
     private String username;  // 用户名
     private String nickname;  // 昵称
+    private String avatar;    // 头像URL
 }

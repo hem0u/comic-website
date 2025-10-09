@@ -193,7 +193,7 @@ const handleRegister = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #fff;
+  background: var(--el-bg-color-page, #fff); /* 默认白色，支持主题变量 */
   min-width: 1200px;
   overflow: hidden !important;
   margin: 0;
@@ -229,7 +229,7 @@ const handleRegister = async () => {
   .brand .title {
     margin: 0;
     font-size: 24px;
-    color: #333;
+    color: var(--el-text-color-primary, #333);
     font-weight: 600;
   }
   /* 彻底覆盖Element UI卡片标题下的边框线 */
@@ -296,17 +296,17 @@ const handleRegister = async () => {
 }
 
 .login-btn-active {
-    background-color: #000000;
-    border-color: #000000;
-    color: #ffffff;
+    background-color: var(--el-button-primary-bg-color, #000000);
+    border-color: var(--el-button-primary-border-color, #000000);
+    color: var(--el-button-primary-text-color, #ffffff);
     height: 40px;
     width: 100%;
   }
   
   .login-btn-disabled {
-    background-color: #ccc !important;
-    border-color: #ccc !important;
-    color: #ffffff !important;
+    background-color: var(--el-button-disabled-bg-color, #ccc) !important;
+    border-color: var(--el-button-disabled-border-color, #ccc) !important;
+    color: var(--el-button-disabled-text-color, #ffffff) !important;
     cursor: not-allowed !important;
     height: 40px !important;
   }
@@ -350,8 +350,8 @@ const handleRegister = async () => {
   width: 100% !important;
   height: 40px !important;
   border-radius: 4px !important;
-  background-color: #f5f5f5 !important;
-  border: 1px solid #e0e0e0 !important;
+  background-color: var(--el-input-bg-color, #f5f5f5) !important;
+  border: 1px solid var(--el-input-border-color, #e0e0e0) !important;
   transition: border-width 0.2s ease-in-out;
   margin: 0 auto;
 }
@@ -377,5 +377,140 @@ const handleRegister = async () => {
 /* 聚焦时前缀图标样式 */
 :deep(.el-input__wrapper:focus-within .el-input__prefix) {
   color: #000 !important;
+}
+/* 暗色主题样式 - 超级优先级覆盖 */
+html.el-theme-dark .register-container {
+  background: var(--el-bg-color-page) !important;
+}
+
+html.el-theme-dark .el-card {
+  background: var(--el-bg-color-page) !important; /* 统一容器内外背景 */
+  border: none !important;
+  box-shadow: none !important;
+}
+
+html.el-theme-dark .brand .title {
+  color: var(--el-text-color-primary) !important;
+}
+
+/* 超级优先级输入框样式覆盖 - 使用复合选择器和!important确保完全覆盖 */
+html.el-theme-dark :deep(.el-input),
+html.el-theme-dark :deep(.el-input__wrapper),
+html.el-theme-dark :deep(.el-input-group),
+html.el-theme-dark :deep(.el-input-group__append),
+html.el-theme-dark :deep(.el-input-group__prepend) {
+  --el-input-bg-color: var(--el-bg-color) !important;
+  --el-input-text-color: var(--el-text-color-primary) !important;
+  --el-input-border-color: var(--el-border-color) !important;
+  --el-input-focus-border-color: var(--el-color-primary) !important;
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
+  box-shadow: none !important;
+}
+
+/* 确保输入框各个状态都被覆盖 */
+html.el-theme-dark :deep(.el-input__wrapper:hover) {
+  border-color: var(--el-color-primary) !important;
+}
+
+html.el-theme-dark :deep(.el-input__wrapper:focus-within) {
+  border-color: var(--el-color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(var(--el-color-primary-rgb), 0.2) !important;
+}
+
+/* 输入框内部元素 */
+html.el-theme-dark :deep(.el-input__inner) {
+  color: var(--el-text-color-primary) !important;
+  background-color: transparent !important;
+}
+
+html.el-theme-dark :deep(.el-input__prefix),
+html.el-theme-dark :deep(.el-input__suffix) {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.el-theme-dark :deep(.el-input__wrapper:focus-within .el-input__prefix),
+html.el-theme-dark :deep(.el-input__wrapper:focus-within .el-input__suffix) {
+  color: var(--el-color-primary) !important;
+}
+
+/* 输入框清除按钮 */
+html.el-theme-dark :deep(.el-input__clear) {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.el-theme-dark :deep(.el-input__clear:hover) {
+  color: var(--el-text-color-primary) !important;
+}
+
+/* 超级优先级按钮样式覆盖 */
+html.el-theme-dark :deep(.el-button),
+html.el-theme-dark :deep(.el-button--default) {
+  --el-button-bg-color: var(--el-bg-color) !important;
+  --el-button-text-color: var(--el-text-color-primary) !important;
+  --el-button-border-color: var(--el-border-color) !important;
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+/* 主按钮 */
+html.el-theme-dark :deep(.el-button--primary) {
+  --el-button-bg-color: var(--el-color-primary) !important;
+  --el-button-text-color: white !important;
+  --el-button-border-color: var(--el-color-primary) !important;
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  color: white !important;
+}
+
+/* 登录按钮激活状态 */
+html.el-theme-dark .login-btn-active {
+  --el-button-bg-color: var(--el-color-primary) !important;
+  --el-button-text-color: white !important;
+  --el-button-border-color: var(--el-color-primary) !important;
+  --el-button-hover-bg-color: #ff5e99 !important;
+  --el-button-hover-text-color: white !important;
+  --el-button-hover-border-color: #ff5e99 !important;
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  color: white !important;
+}
+
+html.el-theme-dark .login-btn-disabled {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-secondary) !important;
+  --el-button-bg-color: var(--el-bg-color-overlay) !important;
+  --el-button-text-color: var(--el-text-color-secondary) !important;
+  --el-button-border-color: var(--el-border-color) !important;
+}
+
+/* 表单容器样式 */
+html.el-theme-dark :deep(.el-form) {
+  --el-form-item-label-color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark :deep(.el-form-item) {
+  --el-form-item-label-color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark :deep(.el-form-item__content) {
+  background-color: transparent !important;
+}
+
+html.el-theme-dark .help-link-text {
+  color: var(--el-text-color-secondary) !important;
+  --el-link-text-color: var(--el-text-color-secondary) !important;
+  --el-link-hover-text-color: var(--el-color-primary) !important;
+}
+
+html.el-theme-dark .terms {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.el-theme-dark .term-link {
+  color: var(--el-color-primary) !important;
 }
 </style>

@@ -70,6 +70,8 @@ public class UserServiceImpl implements UserService {
         loginVO.setToken(token);
         loginVO.setUsername(user.getUsername());
         loginVO.setNickname(user.getNickname());
+        // 如果用户没有设置头像，提供默认头像
+        loginVO.setAvatar(user.getAvatar() != null ? user.getAvatar() : "https://picsum.photos/200"); // 添加用户头像信息
 
         return ResultVO.success(loginVO);
     }

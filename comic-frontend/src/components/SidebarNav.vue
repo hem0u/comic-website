@@ -76,6 +76,13 @@ const closeSidebar = () => {
   transition: transform 0.3s ease-in-out, background-color 0.3s ease, box-shadow 0.3s ease;
   z-index: 100;
   overflow-y: auto;
+  /* 隐藏滚动条但保留滚动功能 */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Chrome, Safari 和 Opera */
+.sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebar-open {
@@ -151,52 +158,65 @@ const closeSidebar = () => {
 }
 
 /* 暗色主题样式 - 增强视觉效果 */
-:deep(.el-theme-dark) .sidebar {
-  background-color: var(--el-bg-color);
-  color: var(--el-text-color-primary);
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.6);
-  border-right: 1px solid var(--el-border-color);
-  transition: all 0.3s ease;
+html.el-theme-dark .sidebar {
+  background-color: var(--el-bg-color) !important;
+  color: var(--el-text-color-primary) !important;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.6) !important;
+  border-right: 1px solid var(--el-border-color) !important;
+  transition: all 0.3s ease !important;
 }
 
-:deep(.el-theme-dark) .sidebar-header {
-  border-bottom: 1px solid var(--el-border-color);
-  background-color: var(--el-bg-color-page);
+html.el-theme-dark .sidebar-header {
+  border-bottom: 1px solid var(--el-border-color) !important;
+  background-color: var(--el-bg-color-page) !important;
 }
 
-:deep(.el-theme-dark) .logo span {
-  color: var(--el-text-color-primary);
-  font-weight: 700;
+html.el-theme-dark .logo span {
+  color: var(--el-text-color-primary) !important;
+  font-weight: 700 !important;
 }
 
-:deep(.el-theme-dark) .close-btn {
-  color: var(--el-text-color-secondary);
-  background-color: var(--el-bg-color-overlay);
-  border: 1px solid var(--el-border-color);
-  transition: all 0.2s ease;
+html.el-theme-dark .close-btn {
+  color: var(--el-text-color-secondary) !important;
+  background-color: var(--el-bg-color-page) !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
 }
 
-:deep(.el-theme-dark) .close-btn:hover {
-  color: var(--el-color-primary);
-  border-color: var(--el-color-primary);
-  background-color: var(--el-bg-color-soft);
-  transform: scale(1.05);
+/* 确保close-symbol继承或覆盖父元素的颜色 */
+html.el-theme-dark .close-btn .close-symbol {
+  color: var(--el-text-color-secondary) !important;
+  transition: color 0.2s ease !important;
 }
 
-:deep(.el-theme-dark) .nav-item {
-  border-bottom: 1px solid var(--el-border-color-light);
+html.el-theme-dark .close-btn:hover {
+  color: #ff7eb3 !important;
+  border: none !important;
+  background-color: var(--el-bg-color-page) !important;
+  transform: scale(1.05) !important;
 }
 
-:deep(.el-theme-dark) .nav-item a {
-  color: var(--el-text-color-secondary);
-  background-color: transparent;
-  transition: all 0.2s ease;
+/* 直接为悬停状态的close-symbol设置高优先级样式 */
+html.el-theme-dark .close-btn:hover .close-symbol {
+  color: #ff7eb3 !important;
+  color: #ff7eb3 !important; /* 重复声明增强优先级 */
 }
 
-:deep(.el-theme-dark) .nav-item a:hover {
-  color: var(--el-text-color-primary);
-  background-color: var(--el-bg-color-overlay);
-  transform: translateX(5px);
+html.el-theme-dark .nav-item {
+  border-bottom: 1px solid var(--el-border-color-light) !important;
+}
+
+html.el-theme-dark .nav-item a {
+  color: var(--el-text-color-secondary) !important;
+  background-color: transparent !important;
+  transition: all 0.2s ease !important;
+}
+
+html.el-theme-dark .nav-item a:hover {
+  color: var(--el-text-color-primary) !important;
+  background-color: var(--el-bg-color-overlay) !important;
+  /* 移除可能导致滚动条的transform，使用padding调整 */
+  padding-left: calc(1.5rem + 5px) !important;
 }
 
 html.el-theme-dark .nav-item.active {

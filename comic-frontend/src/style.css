@@ -10,7 +10,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  color-scheme: light;
   color: #333;
   background-color: #fff;
 
@@ -21,9 +21,11 @@
 }
 
 /* Element Plus 暗色主题增强 */
-.el-theme-dark {
+html.el-theme-dark {
+  color-scheme: dark;
+  
   /* 自定义暗色主题变量 - 增强对比度 */
-  --el-color-primary: #409eff;
+  --el-color-primary: #ff7eb3;
   --el-color-success: #67c23a;
   --el-color-warning: #e6a23c;
   --el-color-danger: #f56c6c;
@@ -51,34 +53,34 @@
 }
 
 /* 暗色主题全局样式增强 */
-.el-theme-dark body {
-  background-color: var(--el-bg-color-page);
-  color: var(--el-text-color-primary);
+html.el-theme-dark body {
+  background-color: var(--el-bg-color-page) !important;
+  color: var(--el-text-color-primary) !important;
 }
 
-.el-theme-dark #app {
-  background-color: var(--el-bg-color-page);
-  color: var(--el-text-color-primary);
+html.el-theme-dark #app {
+  background-color: var(--el-bg-color-page) !important;
+  color: var(--el-text-color-primary) !important;
 }
 
-.el-theme-dark a {
-  color: var(--el-color-primary);
+html.el-theme-dark a {
+  color: var(--el-color-primary) !important;
 }
 
-.el-theme-dark a:hover {
-  color: #66b3ff;
+html.el-theme-dark a:hover {
+  color: #66b3ff !important;
 }
 
-.el-theme-dark button {
-  background-color: var(--el-bg-color-overlay);
-  color: var(--el-text-color-primary);
-  border-color: var(--el-border-color);
+html.el-theme-dark button {
+  background-color: var(--el-bg-color-overlay) !important;
+  color: var(--el-text-color-primary) !important;
+  border-color: var(--el-border-color) !important;
 }
 
-.el-theme-dark .card {
-  background-color: var(--el-bg-color-overlay);
-  border-color: var(--el-border-color);
-  color: var(--el-text-color-primary);
+html.el-theme-dark .card {
+  background-color: var(--el-bg-color-overlay) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
 }
 
 a {

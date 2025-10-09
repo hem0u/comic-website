@@ -464,14 +464,20 @@ onUnmounted(() => {
 }
 
 /* 菜单头部 */
-.menu-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 16px;
-  background-color: #f9f9f9;
-  text-align: center;
-}
+  .menu-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px;
+    background-color: #f9f9f9;
+    text-align: center;
+  }
+  
+  /* 暗色主题下的菜单头部 */
+  html.el-theme-dark .menu-header {
+    background-color: var(--el-bg-color-overlay) !important;
+    border-bottom: 1px solid var(--el-border-color) !important;
+  }
 
 .avatar {
   width: 64px;
@@ -633,12 +639,12 @@ html.el-theme-dark .menu-divider {
 html.el-theme-dark .login-button {
   background-color: var(--el-color-primary) !important;
   color: white !important;
-  box-shadow: 0 2px 4px rgba(64, 158, 255, 0.3) !important;
+  box-shadow: 0 2px 4px rgba(255, 126, 179, 0.3) !important;
 }
 
 html.el-theme-dark .login-button:hover {
-  background-color: #66b3ff !important;
-  box-shadow: 0 4px 8px rgba(64, 158, 255, 0.4) !important;
+  background-color: #ff5a9d !important; /* 更深的粉色 */
+  box-shadow: 0 4px 8px rgba(255, 126, 179, 0.4) !important;
 }
 
 html.el-theme-dark .register-button {

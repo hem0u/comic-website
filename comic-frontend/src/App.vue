@@ -105,7 +105,59 @@ body {
 .auth-page {
   padding-top: 0 !important;
   height: 100vh;
-  background-color: #fff;
+  background-color: #fff; /* 默认白色背景 */
+}
+
+/* 暗色主题下的登录/注册页面样式 - 必须在这里定义以确保优先级 */
+html.el-theme-dark .auth-page {
+  background-color: var(--el-bg-color-page) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+/* 暗色主题下的卡片和表单容器 */
+html.el-theme-dark .auth-page .el-card {
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+/* 暗色主题下的输入框 - 整个输入框保持边框，可输入部分无边框 */
+html.el-theme-dark .auth-page .el-input__wrapper {
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important; /* 整个输入框保持边框 */
+  color: var(--el-text-color-primary) !important;
+  box-shadow: none !important; /* 去除阴影 */
+}
+
+/* 聚焦状态保持边框 */
+html.el-theme-dark .auth-page .el-input__wrapper:focus-within {
+  border-color: var(--el-color-primary) !important; /* 聚焦时边框变色 */
+  box-shadow: none !important;
+}
+
+/* 悬停状态保持边框 */
+html.el-theme-dark .auth-page .el-input__wrapper:hover {
+  border-color: var(--el-color-primary) !important; /* 悬停时边框变色 */
+}
+
+/* 可输入部分（输入框内部）无边框 */
+html.el-theme-dark .auth-page .el-input__inner {
+  border: none !important; /* 移除可输入部分的边框 */
+  outline: none !important; /* 移除轮廓 */
+  background-color: transparent !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark .auth-page .el-input__inner {
+  background-color: transparent !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+/* 暗色主题下的按钮 */
+html.el-theme-dark .auth-page .el-button--default {
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
 }
 
 .auth-inner {
@@ -118,7 +170,7 @@ body {
 /* 全局暗色主题样式 - 增强视觉效果和优先级 */
 html.el-theme-dark {
   /* 直接在根元素上设置暗色主题变量 */
-  --el-color-primary: #409eff;
+  --el-color-primary: #ff7eb3;
   --el-color-success: #67c23a;
   --el-color-warning: #e6a23c;
   --el-color-danger: #f56c6c;
@@ -161,15 +213,15 @@ html.el-theme-dark #app {
 /* 主内容区域样式 - 高优先级 */
 html.el-theme-dark .main-outer {
   background-color: var(--el-bg-color-page) !important;
-  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 html.el-theme-dark .main-inner {
-  background-color: var(--el-bg-color) !important;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  padding: 30px;
-  border: 1px solid var(--el-border-color);
+  background-color: var(--el-bg-color-page) !important;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 20px 15px;
+  border: none;
 }
 
 /* 确保所有文本在暗色主题下都是亮色 */
@@ -184,7 +236,7 @@ html.el-theme-dark a {
 }
 
 html.el-theme-dark a:hover {
-  color: #66b3ff !important;
+  color: #ff5a9d !important;
 }
 
 html.el-theme-dark button {

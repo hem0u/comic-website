@@ -204,7 +204,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #fff;
+  background: var(--el-bg-color-page, #fff); /* 默认白色，支持主题变量 */
   min-width: 1200px;
   overflow: hidden !important;
   margin: 0;
@@ -220,7 +220,7 @@ html, body {
   background-size: 60% auto;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #fff;
+  background-color: var(--el-bg-color-page, #fff); /* 默认白色，支持主题变量 */
   overflow: hidden !important;
   flex-shrink: 0;
 }
@@ -231,7 +231,7 @@ html, body {
   max-width: 430px;
   padding: 24px;
   text-align: center;
-  background-color: #fff;
+  background-color: var(--el-bg-color-page, #fff); /* 默认白色，支持主题变量 */
   max-height: 100%;
   overflow: hidden !important;
   box-sizing: border-box;
@@ -274,10 +274,10 @@ html, body {
 .social-btn {
   width: 100% !important;
   height: 40px !important;
-  border: 1px solid #dadce0 !important;
+  border: 1px solid var(--el-border-color, #dadce0) !important;
   border-radius: 4px !important;
   font-size: 14px !important;
-  background: #fff !important;
+  background: var(--el-bg-color, #fff) !important;
   padding: 0 16px !important;
   margin: 0 !important;
   display: flex !important;
@@ -332,8 +332,8 @@ html, body {
   height: 40px !important;
   width: 100% !important;
   border-radius: 4px !important;
-  background-color: #f5f5f5 !important;
-  border: 1px solid #e0e0e0 !important;
+  background-color: var(--el-input-bg-color, #f5f5f5) !important;
+  border: 1px solid var(--el-input-border-color, #e0e0e0) !important;
   transition: border-width 0.2s ease-in-out;
 }
 :deep(.el-input__wrapper:focus-within) {
@@ -370,17 +370,17 @@ html, body {
   left: 0;
   right: 0;
   height: 1px;
-  background-color: #e0e0e0;
+  background-color: var(--el-border-color, #e0e0e0);
   z-index: 0;
 }
 .separator span {
   display: inline-block;
   padding: 0 10px;
-  background: #fff;
+  background: var(--el-bg-color-page, #fff);
   position: relative;
   z-index: 1;
   font-size: 16px;
-  color: #999;
+  color: var(--el-text-color-secondary, #999);
   font-weight: 500;
 }
 
@@ -455,5 +455,161 @@ html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+/* 暗色主题样式 - 超级优先级覆盖 */
+html.el-theme-dark .login-page {
+  background: var(--el-bg-color-page) !important;
+}
+
+html.el-theme-dark .login-container {
+  background: var(--el-bg-color-page) !important; /* 统一容器内外背景 */
+}
+
+html.el-theme-dark .brand-title {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark .social-btn {
+  background: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+}
+
+html.el-theme-dark .btn-text {
+  color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark .separator::before {
+  background-color: var(--el-border-color) !important;
+}
+
+html.el-theme-dark .separator span {
+  background: var(--el-bg-color-page) !important; /* 与容器背景一致 */
+  color: var(--el-text-color-secondary) !important;
+}
+
+/* 超级优先级输入框样式覆盖 - 使用复合选择器和!important确保完全覆盖 */
+html.el-theme-dark :deep(.el-input),
+html.el-theme-dark :deep(.el-input__wrapper),
+html.el-theme-dark :deep(.el-input-group),
+html.el-theme-dark :deep(.el-input-group__append),
+html.el-theme-dark :deep(.el-input-group__prepend) {
+  --el-input-bg-color: var(--el-bg-color) !important;
+  --el-input-text-color: var(--el-text-color-primary) !important;
+  --el-input-border-color: var(--el-border-color) !important;
+  --el-input-focus-border-color: var(--el-color-primary) !important;
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
+  box-shadow: none !important;
+}
+
+/* 确保输入框各个状态都被覆盖 */
+html.el-theme-dark :deep(.el-input__wrapper:hover) {
+  border-color: var(--el-color-primary) !important;
+}
+
+html.el-theme-dark :deep(.el-input__wrapper:focus-within) {
+  border-color: var(--el-color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(var(--el-color-primary-rgb), 0.2) !important;
+}
+
+/* 输入框内部元素 */
+html.el-theme-dark :deep(.el-input__inner) {
+  color: var(--el-text-color-primary) !important;
+  background-color: transparent !important;
+}
+
+html.el-theme-dark :deep(.el-input__prefix),
+html.el-theme-dark :deep(.el-input__suffix) {
+  color: var(--el-text-color-secondary) !important;
+}
+
+html.el-theme-dark :deep(.el-input__wrapper:focus-within .el-input__prefix),
+html.el-theme-dark :deep(.el-input__wrapper:focus-within .el-input__suffix) {
+  color: var(--el-color-primary) !important;
+}
+
+/* 超级优先级按钮样式覆盖 */
+html.el-theme-dark :deep(.el-button),
+html.el-theme-dark :deep(.el-button--default) {
+  --el-button-bg-color: var(--el-bg-color) !important;
+  --el-button-text-color: var(--el-text-color-primary) !important;
+  --el-button-border-color: var(--el-border-color) !important;
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+/* 主按钮 */
+html.el-theme-dark :deep(.el-button--primary) {
+  --el-button-bg-color: var(--el-color-primary) !important;
+  --el-button-text-color: white !important;
+  --el-button-border-color: var(--el-color-primary) !important;
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  color: white !important;
+}
+
+/* 登录按钮激活状态 */
+html.el-theme-dark :deep(.login-btn-active) {
+  --el-button-bg-color: var(--el-color-primary) !important;
+  --el-button-text-color: white !important;
+  --el-button-border-color: var(--el-color-primary) !important;
+  background-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  color: white !important;
+}
+
+/* 注册按钮 - 超高优先级选择器 */
+html.el-theme-dark :deep(.el-button.el-button--default.register-btn),
+html.el-theme-dark :deep(.register-btn) {
+  --el-button-bg-color: var(--el-bg-color) !important;
+  --el-button-text-color: var(--el-text-color-primary) !important;
+  --el-button-border-color: var(--el-border-color) !important;
+  background-color: var(--el-bg-color) !important;
+  border-color: var(--el-border-color) !important;
+  color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark :deep(.register-btn:hover) {
+  --el-button-hover-bg-color: var(--el-bg-color-soft) !important;
+  --el-button-hover-text-color: var(--el-text-color-primary) !important;
+  --el-button-hover-border-color: var(--el-color-primary) !important;
+  border-color: var(--el-color-primary) !important;
+  color: var(--el-color-primary) !important;
+  background-color: var(--el-bg-color) !important;
+}
+
+html.el-theme-dark :deep(.register-btn:hover) {
+  border-color: var(--el-color-primary) !important;
+  color: var(--el-color-primary) !important;
+  background-color: var(--el-bg-color) !important;
+}
+
+/* 表单容器样式 */
+html.el-theme-dark :deep(.el-form) {
+  --el-form-item-label-color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark :deep(.el-form-item) {
+  --el-form-item-label-color: var(--el-text-color-primary) !important;
+}
+
+html.el-theme-dark :deep(.el-form-item__content) {
+  background-color: transparent !important;
+}
+
+html.el-theme-dark .help-link-text {
+  color: var(--el-text-color-secondary) !important;
+  --el-link-text-color: var(--el-text-color-secondary) !important;
+  --el-link-hover-text-color: var(--el-color-primary) !important;
+}
+
+html.el-theme-dark .terms {
+  color: var(--el-text-color-placeholder) !important;
+}
+
+html.el-theme-dark .term-link {
+  color: var(--el-color-primary) !important;
 }
 </style>

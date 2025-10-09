@@ -11,7 +11,8 @@ public class ComicVO {
     private String authorName;  // 作者昵称（不是ID）
     private String cover;
     private String description;
-    private String categoryName;  // 分类名称（不是ID）
+    private String categoryName;  // 分类名称
+    private Integer categoryId;   // 分类ID，用于前端筛选
     private Byte status;
     private Integer viewCount;
     private Integer collectCount;

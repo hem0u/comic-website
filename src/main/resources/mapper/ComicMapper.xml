@@ -48,6 +48,8 @@
         c.id,
         c.title,
         c.cover,
+        c.description,  <!-- 添加description字段 -->
+        c.category_id as categoryId, <!-- 添加分类ID -->
         u.nickname as authorName,  <!-- 直接查作者昵称 -->
         cat.name as categoryName,  <!-- 直接查分类名称 -->
         c.status,
