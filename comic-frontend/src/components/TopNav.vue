@@ -137,6 +137,7 @@ import { defineEmits, defineProps, ref, onMounted, onUnmounted, computed } from 
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../stores/userStore';  // 导入用户状态存储
+import { getUserInfo } from '../api/user';  // 导入获取用户信息API
 
 // 处理头像路径，确保正确显示
 const getAvatarUrl = (avatarPath) => {
@@ -154,6 +155,17 @@ const getAvatarUrl = (avatarPath) => {
     // 提取相对路径中的文件名部分，然后使用 import.meta.url 构建正确的路径
     const assetName = avatarPath.replace(/^\.\.?\/assets\//, '');
     return new URL(`../assets/${assetName}`, import.meta.url).href;
+  }
+  
+  // 处理上传路径 /upload/ 开头的图片
+  if (avatarPath.startsWith('/upload/')) {
+    // 拼接基础URL，确保能正确访问后端上传的图片
+    let fullPath = `http://localhost:8080${avatarPath}`;
+    // 如果路径没有文件扩展名，添加.jpg（常见的头像格式）
+    if (!avatarPath.includes('.')) {
+      fullPath += '.jpg';
+    }
+    return fullPath;
   }
   
   // 其他情况，返回默认头像
@@ -182,11 +194,33 @@ const userIconWrapper = ref(null);
 // 主题状态 - 使用ref来管理
 const isDarkTheme = ref(false);
 
+// 获取最新用户信息，确保头像正确显示
+const refreshUserInfo = async () => {
+  if (userStore.token) {
+    try {
+      const res = await getUserInfo();
+      if (res?.code === 200 && res.data) {
+        // 更新store中的头像信息
+        userStore.setUserInfo(userStore.token, userStore.username, res.data.avatar);
+      }
+    } catch (error) {
+      console.error('刷新用户信息失败:', error);
+    }
+  }
+};
+
 // 初始化时检查本地存储中的主题设置
 onMounted(() => {
   const savedTheme = localStorage.getItem('theme');
   if (savedTheme === 'dark') {
     isDarkTheme.value = true;
+  }
+  
+  // 组件挂载时刷新用户信息，确保头像正确
+  refreshUserInfo();
+  
+  // 初始化主题
+  if (isDarkTheme.value) {
     document.documentElement.classList.add('el-theme-dark');
   }
 });

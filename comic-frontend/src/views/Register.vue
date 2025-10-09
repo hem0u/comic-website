@@ -303,15 +303,17 @@ const handleRegister = async () => {
     width: 100%;
   }
   
-  .login-btn-disabled {
-    background-color: var(--el-button-disabled-bg-color, #ccc) !important;
-    border-color: var(--el-button-disabled-border-color, #ccc) !important;
-    color: var(--el-button-disabled-text-color, #ffffff) !important;
+  /* 增加选择器特异性以覆盖Element Plus默认样式 */
+  .btn-form-item .el-button.login-btn-disabled {
+    background-color: #ccc !important;
+    border-color: #ccc !important;
+    color: #ffffff !important;
     cursor: not-allowed !important;
     height: 40px !important;
+    opacity: 0.6;
   }
   
-  .login-btn-disabled:hover {
+  .btn-form-item .el-button.login-btn-disabled:hover {
     background-color: #ccc !important;
     border-color: #ccc !important;
     color: #ffffff !important;
@@ -343,6 +345,7 @@ const handleRegister = async () => {
 .el-card {
   border: none !important;
   box-shadow: none !important;
+  background: var(--el-bg-color-page, #fff) !important; /* 与容器外背景保持一致 */
 }
 
 /* 输入框包装器样式 - 与登录页保持一致 */
@@ -478,13 +481,14 @@ html.el-theme-dark .login-btn-active {
   color: white !important;
 }
 
-html.el-theme-dark .login-btn-disabled {
-  background-color: var(--el-bg-color-overlay) !important;
-  border-color: var(--el-border-color) !important;
-  color: var(--el-text-color-secondary) !important;
-  --el-button-bg-color: var(--el-bg-color-overlay) !important;
-  --el-button-text-color: var(--el-text-color-secondary) !important;
-  --el-button-border-color: var(--el-border-color) !important;
+html.el-theme-dark .btn-form-item .el-button.login-btn-disabled {
+  background-color: #666 !important;
+  border-color: #666 !important;
+  color: #aaa !important;
+  --el-button-bg-color: #666 !important;
+  --el-button-text-color: #aaa !important;
+  --el-button-border-color: #666 !important;
+  opacity: 0.6;
 }
 
 /* 表单容器样式 */

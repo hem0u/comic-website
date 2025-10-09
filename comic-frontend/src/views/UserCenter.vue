@@ -270,6 +270,17 @@ const getAvatarUrl = (avatarPath) => {
     return new URL(`../assets/${assetName}`, import.meta.url).href;
   }
   
+  // 处理上传路径 /upload/ 开头的图片
+  if (avatarPath.startsWith('/upload/')) {
+    // 拼接基础URL，确保能正确访问后端上传的图片
+    let fullPath = `http://localhost:8080${avatarPath}`;
+    // 如果路径没有文件扩展名，添加.jpg（常见的头像格式）
+    if (!avatarPath.includes('.')) {
+      fullPath += '.jpg';
+    }
+    return fullPath;
+  }
+  
   // 其他情况，返回默认头像
   return 'https://picsum.photos/200';
 };
