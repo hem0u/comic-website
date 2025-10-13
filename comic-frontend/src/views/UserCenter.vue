@@ -421,9 +421,14 @@ onMounted(() => {
 .user-center-container {
   max-width: 100%;
   margin: 0 auto;
-  background-color: #f5f5f5;
+  background-color: #fff;
   min-height: 100vh;
   width: 100%;
+}
+
+/* 暗色主题下背景与外部一致 */
+html.el-theme-dark .user-center-container {
+  background-color: var(--el-bg-color-page) !important;
 }
 
 /* 用户信息横幅 */
@@ -541,7 +546,12 @@ onMounted(() => {
   background-color: #fff;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: none;
+}
+
+/* 暗色主题下content-tabs背景与外部一致 */
+html.el-theme-dark .content-tabs {
+  background-color: var(--el-bg-color-page) !important;
 }
 
 /* 首页样式 */
@@ -560,8 +570,8 @@ onMounted(() => {
   border: none;
   border-radius: 12px;
   transition: all 0.3s ease;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background-color: #f5f5f5;
+  color: #333;
   overflow: hidden;
 }
 
@@ -637,7 +647,7 @@ onMounted(() => {
   transition: all 0.3s ease;
   border-radius: 8px;
   padding: 10px;
-  background-color: #f8f9fa;
+  background-color: #f5f5f5;
 }
 
 .comic-item:hover {
@@ -685,7 +695,7 @@ onMounted(() => {
   border: none;
   border-radius: 12px;
   transition: all 0.3s ease;
-  background-color: #f8f9fa;
+  background-color: #f5f5f5;
 }
 
 .history-item:hover {
@@ -1069,7 +1079,7 @@ html.el-theme-dark .history-item .history-chapter {
 }
 
 html.el-theme-dark .history-item .history-progress {
-  background-color: var(--el-bg-color-overlay) !important;
+  background-color: var(--el-bg-color) !important;
   border: 1px solid var(--el-border-color) !important;
   border-radius: 10px !important;
   height: 8px !important;
@@ -1090,7 +1100,7 @@ html.el-theme-dark .favorite-grid {
 }
 
 html.el-theme-dark .favorite-grid .favorite-item {
-  background-color: var(--el-bg-color-overlay) !important;
+  background-color: var(--el-bg-color) !important;
   border: 1px solid var(--el-border-color) !important;
   border-radius: 12px !important;
   padding: 15px !important;
