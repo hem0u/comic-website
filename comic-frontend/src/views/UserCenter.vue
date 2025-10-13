@@ -4,8 +4,10 @@
     <div class="user-header-banner">
       <div class="banner-content">
         <div class="user-info">
-          <div class="avatar-large">
-            <img :src="getAvatarUrl(userInfo?.avatar) || 'https://picsum.photos/200'" alt="用户头像" />
+          <div class="avatar-container">
+            <div class="avatar-large">
+              <img :src="getAvatarUrl(userInfo?.avatar) || 'https://picsum.photos/200'" alt="用户头像" />
+            </div>
           </div>
           <div class="user-details">
             <h2 class="user-name">{{ userInfo?.nickname || '未设置昵称' }}</h2>
@@ -217,6 +219,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElLoading, ElEmpty } from 'element-plus';
+import { Camera } from '@element-plus/icons-vue';
 import { useUserStore } from '../stores/userStore';
 import { getUserInfo } from '../api/user';
 import { getUserCollects, cancelCollect } from '../api/collect';
@@ -416,49 +419,88 @@ onMounted(() => {
 <style scoped>
 /* 全局样式 */
 .user-center-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   background-color: #f5f5f5;
   min-height: 100vh;
+  width: 100%;
 }
 
 /* 用户信息横幅 */
 .user-header-banner {
-  background-color: #f8f9fa;
-  background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 40px 0;
-  text-align: center;
+  position: relative;
+  background-image: url('https://picsum.photos/1200/500');
+  background-size: cover;
+  background-position: center;
+  padding: 20px 30px 0;
+  color: #fff;
   margin-bottom: 30px;
+  border-radius: 0;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  height: 350px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0;
+}
+
+.user-header-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%);
+  z-index: 1;
 }
 
 .banner-content {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
+  margin-bottom: 0;
 }
 
 .user-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    padding-bottom: 20px;
+    transform: translateY(160px);
+  }
+
+.avatar-container {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .avatar-large {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+    width: 160px;
+    height: 160px;
+    border-radius: 0;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
 
-.avatar-large img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+.avatar-large:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
 .user-name {
   font-size: 28px;
@@ -490,15 +532,15 @@ onMounted(() => {
 
 /* 主内容区域 */
 .main-content {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
+  margin: 150px auto 0;
   padding: 0 20px;
 }
 
 .content-tabs {
   background-color: #fff;
   border-radius: 12px;
-  padding: 30px;
+  padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -811,8 +853,11 @@ onMounted(() => {
   background-color: var(--el-bg-color-overlay);
   border-bottom: 2px solid var(--el-border-color);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  padding: 30px 20px;
+  padding: 100px 30px 50px;
   margin-bottom: 30px;
+  height: 350px;
+  display: flex;
+  align-items: flex-end;
 }
 
 html.el-theme-dark .user-name {
