@@ -1,24 +1,39 @@
 <template>
   <div class="user-center-container">
     <!-- 用户信息横幅 -->
-    <div class="user-header-banner">
-      <div class="banner-content">
-        <div class="user-info">
-          <div class="avatar-container">
-            <div class="avatar-large">
-              <img :src="getAvatarUrl(userInfo?.avatar) || 'https://picsum.photos/200'" alt="用户头像" />
+  <div class="user-header-banner">
+    <div class="banner-content">
+      <div class="user-info">
+        <div class="avatar-container">
+          <div class="avatar-large">
+            <img :src="getAvatarUrl(userInfo?.avatar) || 'https://picsum.photos/200'" alt="用户头像" />
+          </div>
+        </div>
+        <div class="user-details">
+          <div class="user-name-section">
+            <h2 class="user-name">{{ userInfo?.nickname || '未设置昵称' }}</h2>
+            <div class="edit-button-container">
+              <el-button
+                  type="primary"
+                  size="small"
+                  @click="openEditDialog"
+                >
+                  编辑
+                </el-button>
             </div>
           </div>
-          <div class="user-details">
-            <h2 class="user-name">{{ userInfo?.nickname || '未设置昵称' }}</h2>
-            <div class="user-meta-info">
-              <span class="username-tag">{{ userInfo?.username || '' }}</span>
-              <span class="user-badge">User</span>
-            </div>
+          <div class="user-meta-info">
+            <span class="username-tag">{{ userInfo?.username || '' }}</span>
+            <span class="user-badge">User</span>
+          </div>
+          <!-- 个人简介显示 -->
+          <div class="user-introduction">
+            <p>{{ userInfo?.introduction || '暂无简介' }}</p>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
     <!-- 内容区域 -->
     <div class="main-content">
@@ -213,15 +228,46 @@
       </div>
     </div>
   </div>
+  
+  <!-- 个人简介编辑对话框 -->
+  <el-dialog
+      title="编辑个人信息"
+      v-model="dialogVisible"
+      width="500px"
+      append-to-body
+  >
+    <div style="margin-bottom: 20px;">
+      <el-input
+          v-model="editNickname"
+          placeholder="请输入昵称"
+          maxlength="20"
+          show-word-limit
+      ></el-input>
+    </div>
+    <el-input
+        type="textarea"
+        v-model="editIntroduction"
+        placeholder="请输入个人简介"
+        :rows="5"
+        maxlength="200"
+        show-word-limit
+    ></el-input>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="saveIntroduction">保存</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { ElMessage, ElLoading, ElEmpty } from 'element-plus';
+import { ElMessage, ElLoading, ElEmpty, ElDialog, ElInput } from 'element-plus';
 import { Camera } from '@element-plus/icons-vue';
 import { useUserStore } from '../stores/userStore';
-import { getUserInfo } from '../api/user';
+import { getUserInfo, updateUserInfo } from '../api/user';
 import { getUserCollects, cancelCollect } from '../api/collect';
 import { getUserReadHistory } from '../api/history';
 
@@ -236,6 +282,10 @@ const collectList = ref([]);
 const isCollectLoading = ref(false);
 const historyList = ref([]);
 const isHistoryLoading = ref(false);
+// 个人简介编辑相关状态
+  const dialogVisible = ref(false);
+  const editIntroduction = ref('');
+  const editNickname = ref(''); // 添加用户名编辑状态
 
 // 计算属性：最近收藏的5个漫画
 const recentCollects = computed(() => {
@@ -292,7 +342,10 @@ const getAvatarUrl = (avatarPath) => {
 const loadUserInfo = async () => {
   try {
     const res = await getUserInfo();
+    console.log('getUserInfo响应数据:', res); // 添加调试信息
     if (res?.code === 200 && res.data) {
+      console.log('用户信息数据:', res.data); // 添加调试信息
+      console.log('个人简介字段:', res.data.introduction); // 添加调试信息
       userInfo.value = res.data;
     } else {
       ElMessage.error('用户信息加载失败');
@@ -396,6 +449,35 @@ const formatTime = (timeStr) => {
   return timeStr.replace('T', ' ').split('.')[0];
 };
 
+// 打开个人简介编辑对话框
+  const openEditDialog = () => {
+    editNickname.value = userInfo.value.nickname || '';
+    editIntroduction.value = userInfo.value.introduction || '';
+    dialogVisible.value = true;
+  };
+
+// 保存用户信息（用户名和简介）
+  const saveIntroduction = async () => {
+    try {
+      const res = await updateUserInfo({ 
+        nickname: editNickname.value, 
+        introduction: editIntroduction.value 
+      });
+      if (res?.code === 200) {
+        // 更新本地用户信息
+        userInfo.value.nickname = editNickname.value;
+        userInfo.value.introduction = editIntroduction.value;
+        dialogVisible.value = false;
+        ElMessage.success('保存成功');
+      } else {
+        ElMessage.error(res?.msg || '保存失败');
+      }
+    } catch (error) {
+      ElMessage.error('网络错误，请重试');
+      console.error('保存用户信息错误:', error);
+    }
+  };
+
 // 页面挂载时初始化
 onMounted(() => {
   if (!userStore.token) {
@@ -465,6 +547,8 @@ html.el-theme-dark .user-center-container {
   margin: 0 auto;
   padding: 0 20px;
   margin-bottom: 0;
+  width: 100%;
+  position: relative;
 }
 
 .user-info {
@@ -477,7 +561,28 @@ html.el-theme-dark .user-center-container {
     text-align: center;
     margin: 0;
     padding-bottom: 20px;
-    transform: translateY(160px);
+    transform: translateY(190px);
+  }
+
+  /* 编辑按钮容器 - 用户名居中，按钮位于整个信息区域最右侧 */
+  .user-name-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      position: static;
+    }
+    
+    .edit-button-container {
+      position: absolute;
+      right: 0px;
+      top: 70px;
+    }
+
+  /* 暗色主题下的编辑按钮样式 */
+  html.el-theme-dark .edit-button-container .el-button--primary {
+    background-color: var(--el-color-primary);
+    border-color: var(--el-color-primary);
   }
 
 .avatar-container {
@@ -486,19 +591,16 @@ html.el-theme-dark .user-center-container {
 }
 
 .avatar-large {
-    width: 160px;
-    height: 160px;
-    border-radius: 0;
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
     overflow: hidden;
-    border: none;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid #acacac;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
 .avatar-large:hover {
-    transform: scale(1.05);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    /* 移除所有悬停效果 */
   }
 
   .avatar-large img {
@@ -511,7 +613,12 @@ html.el-theme-dark .user-center-container {
   font-size: 28px;
   margin: 0 0 10px 0;
   font-weight: bold;
-  color: white;
+  color: #333333;
+}
+
+/* 暗色主题下的用户名颜色 */
+html.el-theme-dark .user-name {
+  color: #ffffff;
 }
 
 .user-meta-info {
@@ -521,10 +628,17 @@ html.el-theme-dark .user-center-container {
 }
 
 .username-tag {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #666666;
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 14px;
+}
+
+/* 暗色主题下的用户名标签样式 */
+html.el-theme-dark .username-tag {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
 
 .user-badge {
@@ -538,7 +652,7 @@ html.el-theme-dark .user-center-container {
 /* 主内容区域 */
 .main-content {
   max-width: 100%;
-  margin: 150px auto 0;
+  margin: 220px auto 0;
   padding: 0 20px;
 }
 
@@ -547,6 +661,7 @@ html.el-theme-dark .user-center-container {
   border-radius: 12px;
   padding: 20px;
   box-shadow: none;
+  border: 1px solid #f0f0f0;
 }
 
 /* 暗色主题下content-tabs背景与外部一致 */
@@ -567,17 +682,29 @@ html.el-theme-dark .content-tabs {
 }
 
 .stat-card {
-  border: none;
+  border: 1px solid #f0f0f0;
   border-radius: 12px;
   transition: all 0.3s ease;
-  background-color: #f5f5f5;
   color: #333;
   overflow: hidden;
+  background-color: #fff;
+}
+
+/* 收藏漫画卡片 */
+.stats-cards > .stat-card:nth-child(1) {
+  border-color: #ffe0e6;
+  background-color: #fff9fb;
+}
+
+/* 阅读历史卡片 */
+.stats-cards > .stat-card:nth-child(2) {
+  border-color: #e6e6e6;
+  background-color: #f9f9f9;
 }
 
 .stat-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 10px 20px rgba(255, 126, 179, 0.15);
 }
 
 .stat-content {
@@ -595,7 +722,19 @@ html.el-theme-dark .content-tabs {
   align-items: center;
   justify-content: center;
   font-size: 30px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 126, 179, 0.1);
+  color: #ff7eb3;
+}
+
+/* 收藏图标特殊样式 */
+.collect-icon {
+  background-color: rgba(255, 126, 179, 0.2);
+}
+
+/* 历史图标特殊样式 */
+.history-icon {
+  background-color: rgba(102, 102, 102, 0.1);
+  color: #666;
 }
 
 .stat-info {
@@ -604,15 +743,17 @@ html.el-theme-dark .content-tabs {
 
 .stat-label {
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #333;
   margin: 0 0 8px 0;
+  font-weight: 600;
 }
 
 .stat-value {
   font-size: 36px;
   font-weight: bold;
-  color: white;
+  color: #ff7eb3;
   margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* 最近活动 */
@@ -630,8 +771,18 @@ html.el-theme-dark .content-tabs {
 
 .subsection-title {
   font-size: 18px;
-  color: #666;
+  color: #333;
   margin: 40px 0 20px 0;
+  position: relative;
+}
+
+.subsection-title::after {
+  content: '';
+  display: block;
+  width: 30px;
+  height: 3px;
+  background-color: #ff7eb3;
+  margin-top: 8px;
 }
 
 /* 最近漫画网格 */
@@ -647,12 +798,14 @@ html.el-theme-dark .content-tabs {
   transition: all 0.3s ease;
   border-radius: 8px;
   padding: 10px;
-  background-color: #f5f5f5;
+  background-color: #fff;
+  border: 1px solid #f0f0f0;
 }
 
 .comic-item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(255, 126, 179, 0.1);
+  border-color: #ff7eb3;
 }
 
 .comic-cover-wrapper {
@@ -661,6 +814,7 @@ html.el-theme-dark .content-tabs {
   overflow: hidden;
   border-radius: 8px;
   margin-bottom: 12px;
+  border: 1px solid #f0f0f0;
 }
 
 .comic-cover-wrapper img {
@@ -684,6 +838,10 @@ html.el-theme-dark .content-tabs {
   font-weight: 500;
 }
 
+.comic-item:hover .comic-title {
+  color: #ff7eb3;
+}
+
 /* 历史记录样式 */
 .history-list {
   display: flex;
@@ -692,15 +850,16 @@ html.el-theme-dark .content-tabs {
 }
 
 .history-item {
-  border: none;
+  border: 1px solid #f0f0f0;
   border-radius: 12px;
   transition: all 0.3s ease;
-  background-color: #f5f5f5;
+  background-color: #fff;
 }
 
 .history-item:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(255, 126, 179, 0.1);
   transform: translateY(-2px);
+  border-color: #ff7eb3;
 }
 
 .history-item-content {
@@ -717,7 +876,8 @@ html.el-theme-dark .content-tabs {
   overflow: hidden;
   border-radius: 8px;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
 }
 
 .history-cover img {
@@ -739,7 +899,7 @@ html.el-theme-dark .content-tabs {
   font-size: 18px;
   color: #333;
   margin: 0 0 10px 0;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .chapter-name, .read-time {
@@ -752,6 +912,16 @@ html.el-theme-dark .content-tabs {
   margin-left: auto;
 }
 
+/* 继续阅读按钮样式 */
+.history-actions .el-button {
+  color: #ff7eb3 !important;
+  border-color: #ff7eb3 !important;
+}
+
+.history-actions .el-button:hover {
+  background-color: #fff9fb !important;
+}
+
 /* 收藏列表样式 */
 .comic-grid {
   display: grid;
@@ -761,7 +931,7 @@ html.el-theme-dark .content-tabs {
 }
 
 .comic-card {
-  border: none;
+  border: 1px solid #f0f0f0;
   border-radius: 12px;
   transition: all 0.3s ease;
   overflow: hidden;
@@ -771,7 +941,8 @@ html.el-theme-dark .content-tabs {
 
 .comic-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 20px rgba(255, 126, 179, 0.1);
+  border-color: #ff7eb3;
 }
 
 .comic-card-content {
@@ -785,6 +956,7 @@ html.el-theme-dark .content-tabs {
   height: 300px;
   overflow: hidden;
   cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .comic-card .comic-cover img {
@@ -813,11 +985,11 @@ html.el-theme-dark .content-tabs {
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .comic-card .comic-title:hover {
-  color: #1890ff;
+  color: #ff7eb3;
 }
 
 .comic-card .comic-author, .comic-card .comic-category {
@@ -831,6 +1003,15 @@ html.el-theme-dark .content-tabs {
   text-align: right;
 }
 
+/* 取消收藏按钮样式 */
+.card-actions .el-button {
+  color: #ff7eb3 !important;
+}
+
+.card-actions .el-button:hover {
+  background-color: #fff9fb !important;
+}
+
 /* 底部操作按钮 */
 .bottom-actions {
   margin-top: 40px;
@@ -842,15 +1023,39 @@ html.el-theme-dark .content-tabs {
   font-size: 16px;
   padding: 10px 30px;
   border-radius: 8px;
-  background-color: #ff6b6b;
+  background-color: #ff7eb3;
   border: none;
+  color: white;
   transition: all 0.3s ease;
 }
 
 .logout-button:hover {
-  background-color: #ff5252;
+  background-color: #ff5e9e;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 126, 179, 0.3);
+}
+
+/* 编辑按钮样式 */
+.edit-button-container .el-button {
+  background-color: #ff7eb3 !important;
+  border-color: #ff7eb3 !important;
+  color: white !important;
+}
+
+.edit-button-container .el-button:hover {
+  background-color: #ff5e9e !important;
+  border-color: #ff5e9e !important;
+}
+
+/* 对话框样式 */
+.dialog-footer .el-button--primary {
+  background-color: #ff7eb3 !important;
+  border-color: #ff7eb3 !important;
+}
+
+.dialog-footer .el-button--primary:hover {
+  background-color: #ff5e9e !important;
+  border-color: #ff5e9e !important;
 }
 
 /* 暗色主题样式 - 增强视觉效果 */
@@ -1146,5 +1351,50 @@ html.el-theme-dark .clear-history-btn:hover {
   border-color: var(--el-color-danger) !important;
   background-color: rgba(245, 108, 108, 0.1) !important;
   transform: scale(1.03) !important;
+}
+
+/* 个人简介样式 */
+.user-introduction {
+  margin-top: 10px;
+  line-height: 1.6;
+  color: #666;
+  font-size: 14px;
+}
+
+.user-introduction p {
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.empty-introduction {
+  color: #999;
+  font-style: italic;
+}
+
+/* 编辑按钮样式 */
+.user-introduction .el-button--text {
+  padding: 0 8px;
+  font-size: 12px;
+  color: #1890ff;
+}
+
+.user-introduction .el-button--text:hover {
+  color: #40a9ff;
+}
+
+/* 对话框样式 */
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 暗色主题下的个人简介样式 */
+html.el-theme-dark .user-introduction {
+  color: var(--el-text-color-secondary);
+}
+
+html.el-theme-dark .empty-introduction {
+  color: var(--el-text-color-placeholder);
 }
 </style>

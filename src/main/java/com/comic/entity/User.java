@@ -16,4 +16,5 @@ public class User {
     private Byte status;  // 1-正常，0-禁用
     private LocalDateTime createTime;  // Java 17支持的时间类型
     private LocalDateTime updateTime;
+    private String introduction;  // 个人简介
 }

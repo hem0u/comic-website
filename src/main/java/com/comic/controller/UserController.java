@@ -54,9 +54,36 @@ public class UserController {
         userInfoVO.setNickname(user.getNickname());
         userInfoVO.setEmail(user.getEmail());
         userInfoVO.setAvatar(user.getAvatar());  // 若未设置头像，返回null
+        userInfoVO.setIntroduction(user.getIntroduction());  // 添加个人简介
 
         return ResultVO.success(userInfoVO);
     }
+    
+    // 更新用户信息接口（支持更新昵称、邮箱、头像、个人简介）
+    @PutMapping("/info")
+    public ResultVO updateUserInfo(@RequestBody User userUpdate) {
+        // 从Security上下文获取当前登录用户名
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
 
+        // 查询用户信息
+        User user = userMapper.selectByUsername(username);
+        if (user == null) {
+            return ResultVO.error("用户不存在");
+        }
+        
+        // 设置要更新的字段
+        User updateUser = new User();
+        updateUser.setId(user.getId());
+        updateUser.setNickname(userUpdate.getNickname());
+        updateUser.setEmail(userUpdate.getEmail());
+        updateUser.setAvatar(userUpdate.getAvatar());
+        updateUser.setIntroduction(userUpdate.getIntroduction());
+        
+        // 执行更新
+        userMapper.updateById(updateUser);
+        
+        return ResultVO.success("更新成功");
+    }
 
 }

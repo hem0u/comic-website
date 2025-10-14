@@ -12,11 +12,32 @@
 
     <!-- 新增用户 -->
     <insert id="insert" parameterType="com.comic.entity.User" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO t_user (username, password, nickname, email, avatar, role, status)
-        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{avatar}, #{role}, #{status})
+        INSERT INTO t_user (username, password, nickname, email, avatar, role, status, introduction)
+        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{avatar}, #{role}, #{status}, #{introduction})
     </insert>
 
     <select id="selectById" parameterType="Long" resultType="com.comic.entity.User">
         SELECT * FROM t_user WHERE id = #{id}
     </select>
+    
+    <!-- 根据ID更新用户信息 -->
+    <update id="updateById" parameterType="com.comic.entity.User">
+        UPDATE t_user
+        <set>
+            <if test="nickname != null and nickname != ''">
+                nickname = #{nickname},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="avatar != null and avatar != ''">
+                avatar = #{avatar},
+            </if>
+            <if test="introduction != null">
+                introduction = #{introduction},
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
 </mapper>

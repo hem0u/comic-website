@@ -8,4 +8,5 @@ public class UserInfoVO {
     private String nickname;  // 昵称（展示用）
     private String email;     // 邮箱
     private String avatar;    // 头像URL（默认可空）
+    private String introduction;  // 个人简介
 }

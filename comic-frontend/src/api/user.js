@@ -25,3 +25,12 @@ export const getUserInfo = () => {
         method: 'GET'
     });
 };
+
+// 更新用户信息（支持昵称、邮箱、头像、个人简介）
+export const updateUserInfo = (data) => {
+    return request({
+        url: '/api/user/info',
+        method: 'PUT',
+        data
+    });
+};
