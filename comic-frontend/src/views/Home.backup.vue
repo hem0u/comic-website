@@ -1,7 +1,7 @@
 <template>
   <div class="home-container">
     <!-- 热门新漫画轮播 -->
-    <div class="hot-comic-carousel">
+    <div class="top-comic-carousel">
       <div class="section-header">
         <h2 class="section-title">热门新漫画</h2>
       </div>
@@ -9,39 +9,66 @@
         <span class="empty-text">暂无热门榜数据</span>
       </div>
       <div v-else class="carousel-container">
-        <div class="carousel-item active" v-for="(comic, index) in topComics.slice(0, 10)" :key="comic.id" :class="{ 'active': currentSlide === index }" v-show="currentSlide === index">
-          <div class="comic-rank">
-            <span class="rank-number">NO.{{ index + 1 }}</span>
-          </div>
-          <div class="comic-content">
-            <div class="comic-cover-grayscale">
-              <img :src="comic.cover || 'https://picsum.photos/300/400'" :alt="comic.title" class="cover-image" />
-            </div>
-            <div class="comic-details">
-              <h3 class="comic-main-title">{{ comic.title }}</h3>
-              <div class="comic-meta-info">
-                <span class="comic-tag" v-for="(tag, tagIndex) in comic.tags" :key="tagIndex">
-                  {{ tag.name }}
-                </span>
+        <div 
+          class="carousel-slide" 
+          :style="{ transform: `translateX(-${currentSlide * 100}%)` }"
+        >
+          <div 
+            v-for="(comic, index) in topComics.slice(0, 10)" 
+            :key="comic.id" 
+            class="carousel-item"
+            @click="goToComicDetail(comic.id)"
+          >
+            <div 
+              class="comic-backdrop" 
+              :style="{ backgroundImage: `url(${comic.cover || 'https://picsum.photos/1200/600'})` }"
+            ></div>
+            <div class="carousel-content">
+              <div class="comic-cover-wrapper">
+                <img 
+                  :src="comic.cover || 'https://picsum.photos/300/400'" 
+                  :alt="comic.title" 
+                  class="comic-cover"
+                  loading="lazy"
+                >
               </div>
-              <p class="comic-description">{{ comic.description || '暂无简介' }}</p>
+              <div class="comic-details">
+                <h3 class="comic-title">{{ comic.title }}</h3>
+                <div class="comic-tags">
+                  <el-tag 
+                    v-for="category in comic.categories || []" 
+                    :key="category.id" 
+                    size="small"
+                    :type="getStatusType(comic.status)"
+                  >
+                    {{ category.name }}
+                  </el-tag>
+                </div>
+                <p class="comic-description">{{ comic.description || '暂无简介' }}</p>
+                <div class="comic-author">
+                  <span class="author-label">作者:</span>
+                  <span class="author-name">{{ comic.authorName || '未知作者' }}</span>
+                </div>
+              </div>
             </div>
-            <div class="comic-creator-wrapper">
-              <div class="comic-creator">
-                <span class="creator-name">{{ comic.authorName || '未知作者' }}</span>
+            <div class="carousel-controls">
+              <div class="rank-badge">
+                <span :class="getRankClass(index + 1)">NO.{{ index + 1 }}</span>
+              </div>
+              <div class="nav-buttons">
+                <button class="nav-btn prev-btn" @click.stop="prevSlide">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"></path>
+                  </svg>
+                </button>
+                <button class="nav-btn next-btn" @click.stop="nextSlide">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"></path>
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
-          <button class="carousel-btn prev" @click="prevSlide">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 18l-6-6 6-6"></path>
-            </svg>
-          </button>
-          <button class="carousel-btn next" @click="nextSlide">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18l6-6-6-6"></path>
-            </svg>
-          </button>
         </div>
       </div>
     </div>
@@ -54,7 +81,7 @@
             v-for="category in categoryList"
             :key="category.id"
             class="category-card"
-            @click="$router.push({path: '/comic-list', query: {categoryId: category.id}})"
+            @click="goToCategoryPage(category.id)"
         >
           <div class="category-icon">
             <span class="category-symbol">📖</span>
@@ -68,7 +95,7 @@
     <div class="featured-section">
       <div class="section-header">
         <h2 class="section-title">热门推荐</h2>
-        <el-link @click="$router.push('/comic-list')">查看全部</el-link>
+        <el-link @click="goToListPage()">查看全部</el-link>
       </div>
       <div class="comic-grid">
         <div v-if="featuredComics.length === 0" class="empty-placeholder">
@@ -80,7 +107,7 @@
             :key="comic.id"
             class="comic-card"
             shadow="hover"
-            @click="$router.push(`/comic-read/${comic.id}`)"
+            @click="goToComicDetail(comic.id)"
         >
           <div class="comic-cover-container">
             <img
@@ -107,7 +134,7 @@
     <div class="latest-section">
       <div class="section-header">
         <h2 class="section-title">最新上架</h2>
-        <el-link @click="$router.push('/comic-list')">查看全部</el-link>
+        <el-link @click="goToListPage()">查看全部</el-link>
       </div>
       <div class="comic-grid">
         <div v-if="latestComics.length === 0" class="empty-placeholder">
@@ -119,7 +146,7 @@
             :key="comic.id"
             class="comic-card"
             shadow="hover"
-            @click="$router.push(`/comic-read/${comic.id}`)"
+            @click="goToComicDetail(comic.id)"
         >
           <div class="comic-cover-container">
             <img
@@ -143,11 +170,13 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { getCategoryList, getComicList } from '../api/comic';
 import { ElMessage, ElTag, ElCard, ElLink, ElButton } from 'element-plus';
+
+const router = useRouter();
 
 const categoryList = ref([]);
 const featuredComics = ref([]);
@@ -166,6 +195,26 @@ onMounted(() => {
     loading.value = false;
   });
 });
+
+const goToComicDetail = (comicId) => {
+  router.push(`/comic-read/${comicId}`);
+};
+
+const goToListPage = () => {
+  router.push('/comic-list');
+};
+
+const goToCategoryPage = (categoryId) => {
+  router.push({path: '/comic-list', query: {categoryId: categoryId}});
+};
+
+const prevSlide = () => {
+  currentSlide.value = Math.max(0, currentSlide.value - 1);
+};
+
+const nextSlide = () => {
+  currentSlide.value = Math.min(topComics.value.length - 1, currentSlide.value + 1);
+};
 
 const loadCategories = async () => {
   try {
@@ -220,14 +269,6 @@ const scrollToFeatured = () => {
 
 const goToComicDetail = (comicId) => {
   window.location.href = `/comic-read/${comicId}`;
-};
-
-const prevSlide = () => {
-  currentSlide.value = (currentSlide.value - 1 + topComics.value.length) % topComics.value.length;
-};
-
-const nextSlide = () => {
-  currentSlide.value = (currentSlide.value + 1) % topComics.value.length;
 };
 
 const getRankClass = (rank) => {
@@ -383,270 +424,345 @@ const getStatusType = (status) => {
   margin-bottom: 60px;
 }
 
-/* 热门新漫画轮播样式 */
-.hot-comic-carousel {
-  margin-bottom: 40px;
-  padding: 30px;
-  background-color: #fff; /* 和外部容器背景颜色完全一致 */
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
+/* 热门榜样式 */
+.top-ranking-list {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #f0f0f0;
 }
 
-.comic-details {
-  flex: 1;
-  color: #333; /* 黑色文本 */
-  max-width: 600px;
-  position: relative;
-}
-
-.comic-main-title {
-  font-size: 32px;
-  font-weight: 800;
-  margin-bottom: 15px;
-  color: #333; /* 黑色标题 */
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-
-.comic-meta-info {
+.top-item {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  align-items: center;
+  padding: 15px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.comic-tag {
-  padding: 5px 12px;
-  background-color: rgba(0,0,0,0.05);
-  border-radius: 20px;
-  font-size: 12px;
-  color: #666;
-  border: 1px solid rgba(0,0,0,0.1);
+.top-item:hover {
+  background-color: #f8f9fa;
 }
 
-.comic-description {
-  font-size: 16px;
-  line-height: 1.8;
-  color: #666;
-  margin-bottom: 20px;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.top-item:last-child {
+  border-bottom: none;
 }
 
-.comic-creator {
-  font-size: 14px;
-  color: #999;
-}
-
-.creator-name {
-  color: #ff7eb3;
-  font-weight: 500;
-}
-
-.carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(0,0,0,0.1);
-  border: 1px solid rgba(0,0,0,0.2);
-  color: #333;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+.top-rank {
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 3;
+  margin-right: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
 }
 
-.carousel-btn:hover {
-  background-color: rgba(255,126,179,0.2);
-  transform: translateY(-50%) scale(1.1);
+.rank-first {
+  color: #ff7eb3;
+  font-size: 24px;
+}
+
+.rank-second {
+  color: #ffa500;
+  font-size: 22px;
+}
+
+.rank-third {
+  color: #cd7f32;
+  font-size: 20px;
+}
+
+.rank-normal {
+  color: #666;
+  font-size: 18px;
+}
+
+.top-comic-info {
+  flex: 1;
+}
+
+.top-comic-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.top-comic-meta {
+  font-size: 14px;
+  color: #666;
+}
+
+.top-author {
+  margin-right: 20px;
+}
+
+/* 暗色主题热门榜样式 */
+html.el-theme-dark .top-ranking-list {
+  background-color: var(--el-bg-color);
+  border-color: var(--el-border-color);
+}
+
+html.el-theme-dark .top-item {
+  border-bottom-color: var(--el-border-color);
+}
+
+html.el-theme-dark .top-item:hover {
+  background-color: var(--el-bg-color-hover);
+}
+
+html.el-theme-dark .top-comic-title {
+  color: var(--el-text-color-primary);
+}
+
+/* 热门新漫画轮播样式 */
+.top-comic-carousel {
+  margin-bottom: 40px;
+  overflow: hidden;
 }
 
 .carousel-container {
   position: relative;
+  width: 100%;
   height: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-slide {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  transition: transform 0.5s ease-in-out;
+  height: 100%;
 }
 
 .carousel-item {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  width: 100%;
-  transition: opacity 0.5s ease;
-}
-
-.comic-rank {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  z-index: 2;
-}
-
-.rank-number {
-  color: #ff7eb3;
-  font-size: 24px;
-  font-weight: bold;
-  font-family: 'Arial Black', sans-serif;
-  letter-spacing: 1px;
-}
-
-.comic-content {
-  display: flex;
-  align-items: center;
-  gap: 40px;
-  width: 100%;
   position: relative;
-}
-
-.comic-cover-grayscale {
-  flex-shrink: 0;
-  position: relative;
-}
-
-.comic-cover-grayscale::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
-  z-index: 1;
-}
-
-.cover-image {
-  width: 220px;
-  height: 320px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
+  min-width: 100%;
+  height: 100%;
   cursor: pointer;
 }
 
-.cover-image:hover {
-  transform: scale(1.02);
+.comic-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px) brightness(0.6);
+  opacity: 0.7;
+  z-index: 1;
+}
+
+.carousel-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 40px;
+  color: white;
+}
+
+.comic-cover-wrapper {
+  flex-shrink: 0;
+  margin-right: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.carousel-item:hover .comic-cover-wrapper {
+  transform: translateY(-5px);
+}
+
+.comic-cover {
+  width: 200px;
+  height: 280px;
+  object-fit: cover;
 }
 
 .comic-details {
-    flex: 1;
-    color: #333;
-    max-width: 600px;
-    position: relative;
-  }
+  flex: 1;
+  max-width: 600px;
+}
 
-  .comic-main-title {
-    font-size: 32px;
-    font-weight: 800;
-    margin-top: -160px;
-    margin-bottom: 15px;
-    color: #333;
-  }
+.comic-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
 
-  .comic-creator-wrapper {
-    position: absolute;
-    bottom: 20px;
-    left: 260px;
-  }
+.comic-tags {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
 
-  .comic-meta-info {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
+.comic-description {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  opacity: 0.9;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
 
-  .comic-tag {
-    padding: 5px 12px;
-    background-color: rgba(0,0,0,0.05);
-    border-radius: 20px;
-    font-size: 12px;
-    color: #666;
-    border: 1px solid rgba(0,0,0,0.1);
-  }
+.comic-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
 
-  .comic-description {
-    font-size: 16px;
-    line-height: 1.8;
-    color: #666;
-    margin-bottom: 20px;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .comic-creator {
-    font-size: 14px;
-    color: #999;
-    margin-top: 20px;
-  }
-
-.creator-name {
-  color: #ff7eb3;
+.author-label {
   font-weight: 500;
 }
 
-.carousel-btn {
+.author-name {
+  opacity: 0.9;
+}
+
+.carousel-controls {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: #fff;
-  width: 50px;
-  height: 50px;
+  bottom: 20px;
+  right: 20px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.rank-badge {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.nav-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  color: white;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  z-index: 3;
+  backdrop-filter: blur(4px);
 }
 
-.carousel-btn:hover {
-  background-color: rgba(255,126,179,0.3);
-  transform: translateY(-50%) scale(1.1);
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
 }
 
-.carousel-btn.prev {
-  left: 20px;
+.nav-btn:active {
+  transform: scale(0.95);
 }
 
-.carousel-btn.next {
-  right: 20px;
+/* 排行榜数字样式 */
+.rank-badge span {
+  font-weight: bold;
 }
 
-.carousel-btn svg {
-  width: 24px;
-  height: 24px;
+.rank-badge span.top-1 {
+  color: #ffd700;
 }
 
-/* 暗色主题适配 */
-html.el-theme-dark .hot-comic-carousel {
-  background-color: #111 !important;
-  border: 1px solid #333 !important;
+.rank-badge span.top-2 {
+  color: #c0c0c0;
 }
 
-html.el-theme-dark .comic-tag {
-  background-color: rgba(255,255,255,0.1) !important;
-  border-color: rgba(255,255,255,0.2) !important;
-  color: #ccc !important;
+.rank-badge span.top-3 {
+  color: #cd7f32;
 }
 
-/* 隐藏原来的热门榜样式 */
-.top-ranking-section {
-  display: none;
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .carousel-container {
+    height: 300px;
+  }
+  
+  .carousel-content {
+    padding: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .comic-cover-wrapper {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  
+  .comic-cover {
+    width: 120px;
+    height: 168px;
+  }
+  
+  .comic-title {
+    font-size: 20px;
+  }
+  
+  .comic-description {
+    font-size: 14px;
+  }
+  
+  .carousel-controls {
+    position: static;
+    justify-content: center;
+    margin-top: 20px;
+  }
+}
+
+/* 暗色主题样式覆盖 */
+html.el-theme-dark .carousel-content {
+  color: var(--el-text-color-primary);
+}
+
+html.el-theme-dark .comic-backdrop {
+  opacity: 0.5;
+}
+
+html.el-theme-dark .nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--el-border-color);
+  color: var(--el-text-color-primary);
+}
+
+html.el-theme-dark .nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+html.el-theme-dark .rank-badge {
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--el-text-color-primary);
+}
+
+html.el-theme-dark .top-comic-meta {
+  color: var(--el-text-color-secondary);
 }
 
 .comic-grid {
