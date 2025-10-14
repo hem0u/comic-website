@@ -8,4 +8,6 @@ public class ComicQueryDTO {
     private Integer size = 10;     // 每页数量，默认10条
     private String keyword;        // 搜索关键词（标题、作者）
     private Integer categoryId;    // 分类ID，用于筛选
+    private String sort;           // 排序字段：viewCount, collectCount, createTime等
+    private String order = "desc";  // 排序方式：asc或desc，默认desc
 }

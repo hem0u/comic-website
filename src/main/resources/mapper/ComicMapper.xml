@@ -67,8 +67,30 @@
             <if test="queryDTO.categoryId != null">
                 AND c.category_id = #{queryDTO.categoryId}
             </if>
+            <!-- 注释掉审核限制，让所有漫画都能显示在热门榜 -->
+            <!-- <if test="queryDTO.sort == 'viewCount' or queryDTO.sort == 'collectCount'">
+                AND c.is_approved = 1
+            </if> -->
         </where>
-        ORDER BY c.create_time DESC
+        <if test="queryDTO.sort != null and queryDTO.sort != ''">
+            <choose>
+                <when test="queryDTO.sort == 'viewCount'">
+                    ORDER BY c.view_count ${queryDTO.order}
+                </when>
+                <when test="queryDTO.sort == 'collectCount'">
+                    ORDER BY c.collect_count ${queryDTO.order}
+                </when>
+                <when test="queryDTO.sort == 'createTime'">
+                    ORDER BY c.create_time ${queryDTO.order}
+                </when>
+                <otherwise>
+                    ORDER BY c.create_time DESC
+                </otherwise>
+            </choose>
+        </if>
+        <if test="queryDTO.sort == null or queryDTO.sort == ''">
+            ORDER BY c.create_time DESC
+        </if>
         LIMIT #{offset}, #{size}
     </select>
 

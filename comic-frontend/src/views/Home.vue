@@ -1,13 +1,28 @@
 <template>
   <div class="home-container">
-    <!-- 顶部横幅 -->
-    <div class="hero-banner">
-      <div class="banner-content">
-        <h1>探索无限漫画世界</h1>
-        <p>发现最新、最热门的漫画作品，开启你的阅读之旅</p>
-        <el-button type="primary" size="large" @click="$router.push('/comic-list')">
-          开始探索
-        </el-button>
+    <!-- 热门榜前十 -->
+    <div class="top-ranking-section">
+      <div class="section-header">
+        <h2 class="section-title">热门新漫画</h2>
+      </div>
+      <div class="top-ranking-list">
+        <div v-if="topComics.length === 0" class="empty-placeholder">
+          <span class="empty-text">暂无热门榜数据</span>
+        </div>
+        <div v-else>
+          <div v-for="(comic, index) in topComics.slice(0, 10)" :key="comic.id" class="top-item" @click="goToComicDetail(comic.id)">
+            <div class="top-rank">
+              <span :class="getRankClass(index + 1)">{{ index + 1 }}</span>
+            </div>
+            <div class="top-comic-info">
+              <div class="top-comic-title">{{ comic.title }}</div>
+              <div class="top-comic-meta">
+                <span class="top-author">{{ comic.authorName || '未知作者' }}</span>
+                <span class="top-stats">收藏: {{ comic.collectCount }} | 浏览: {{ comic.viewCount }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -117,13 +132,15 @@ import { ElMessage, ElTag, ElCard, ElLink, ElButton } from 'element-plus';
 const categoryList = ref([]);
 const featuredComics = ref([]);
 const latestComics = ref([]);
+const topComics = ref([]);
 const loading = ref(true);
 
 onMounted(() => {
   Promise.all([
     loadCategories(),
     loadFeaturedComics(),
-    loadLatestComics()
+    loadLatestComics(),
+    loadTopComics()
   ]).finally(() => {
     loading.value = false;
   });
@@ -160,6 +177,35 @@ const loadLatestComics = async () => {
     console.error('获取最新漫画失败', e);
     ElMessage.error('获取最新漫画失败');
   }
+};
+
+const loadTopComics = async () => {
+  try {
+    const res = await getComicList({ page: 1, size: 10, sort: 'collectCount', order: 'desc' });
+    if (res.code === 200) topComics.value = res.data?.list || [];
+    else ElMessage.error(res.msg || '获取热门榜漫画失败');
+  } catch (e) {
+    console.error('获取热门榜漫画失败', e);
+    ElMessage.error('获取热门榜漫画失败');
+  }
+};
+
+const scrollToFeatured = () => {
+  const featuredSection = document.querySelector('.featured-section');
+  if (featuredSection) {
+    featuredSection.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
+const goToComicDetail = (comicId) => {
+  window.location.href = `/comic-read/${comicId}`;
+};
+
+const getRankClass = (rank) => {
+  if (rank === 1) return 'rank-first';
+  if (rank === 2) return 'rank-second';
+  if (rank === 3) return 'rank-third';
+  return 'rank-normal';
 };
 
 const getStatusText = (status) => {
@@ -228,6 +274,8 @@ const getStatusType = (status) => {
 .category-section {
   margin-bottom: 60px;
 }
+
+
 
 .section-title {
   font-size: 24px;
@@ -302,8 +350,107 @@ const getStatusType = (status) => {
   color: #ff7eb3; /* 粉色悬停效果 */
 }
 
-.featured-section, .latest-section {
+.featured-section, .latest-section, .top-ranking-section {
   margin-bottom: 60px;
+}
+
+/* 热门榜样式 */
+.top-ranking-list {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #f0f0f0;
+}
+
+.top-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.top-item:hover {
+  background-color: #f8f9fa;
+}
+
+.top-item:last-child {
+  border-bottom: none;
+}
+
+.top-rank {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.rank-first {
+  color: #ff7eb3;
+  font-size: 24px;
+}
+
+.rank-second {
+  color: #ffa500;
+  font-size: 22px;
+}
+
+.rank-third {
+  color: #cd7f32;
+  font-size: 20px;
+}
+
+.rank-normal {
+  color: #666;
+  font-size: 18px;
+}
+
+.top-comic-info {
+  flex: 1;
+}
+
+.top-comic-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.top-comic-meta {
+  font-size: 14px;
+  color: #666;
+}
+
+.top-author {
+  margin-right: 20px;
+}
+
+/* 暗色主题热门榜样式 */
+html.el-theme-dark .top-ranking-list {
+  background-color: var(--el-bg-color);
+  border-color: var(--el-border-color);
+}
+
+html.el-theme-dark .top-item {
+  border-bottom-color: var(--el-border-color);
+}
+
+html.el-theme-dark .top-item:hover {
+  background-color: var(--el-bg-color-hover);
+}
+
+html.el-theme-dark .top-comic-title {
+  color: var(--el-text-color-primary);
+}
+
+html.el-theme-dark .top-comic-meta {
+  color: var(--el-text-color-secondary);
 }
 
 .comic-grid {
