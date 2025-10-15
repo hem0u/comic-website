@@ -10,9 +10,6 @@
       </div>
       <div v-else class="carousel-container">
         <div class="carousel-item active" v-for="(comic, index) in topComics.slice(0, 10)" :key="comic.id" :class="{ 'active': currentSlide === index }" v-show="currentSlide === index">
-          <div class="comic-rank">
-            <span class="rank-number">NO.{{ index + 1 }}</span>
-          </div>
           <div class="comic-content">
             <div class="comic-cover-grayscale">
               <img :src="comic.cover || 'https://picsum.photos/300/400'" :alt="comic.title" class="cover-image" />
@@ -32,16 +29,21 @@
               </div>
             </div>
           </div>
-          <button class="carousel-btn prev" @click="prevSlide">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 18l-6-6 6-6"></path>
-            </svg>
-          </button>
-          <button class="carousel-btn next" @click="nextSlide">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18l6-6-6-6"></path>
-            </svg>
-          </button>
+          <div class="comic-rank">
+            <span class="rank-number" :class="{ 'rank-first': index === 0 }">NO.{{ index + 1 }}</span>
+          </div>
+          <div class="carousel-controls">
+            <button class="carousel-btn prev" @click="prevSlide">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"></path>
+              </svg>
+            </button>
+            <button class="carousel-btn next" @click="nextSlide">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -446,14 +448,12 @@ const getStatusType = (status) => {
 }
 
 .carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  position: relative;
   background-color: rgba(0,0,0,0.1);
   border: 1px solid rgba(0,0,0,0.2);
   color: #333;
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -461,11 +461,12 @@ const getStatusType = (status) => {
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 3;
+  transform: none;
 }
 
 .carousel-btn:hover {
   background-color: rgba(255,126,179,0.2);
-  transform: translateY(-50%) scale(1.1);
+  transform: scale(1.1);
 }
 
 .carousel-container {
@@ -486,17 +487,31 @@ const getStatusType = (status) => {
 
 .comic-rank {
   position: absolute;
-  top: 20px;
-  right: 30px;
+  bottom: 20px;
+  right: 100px;
   z-index: 2;
 }
 
+.carousel-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .rank-number {
-  color: #ff7eb3;
-  font-size: 24px;
+  color: #333;
+  font-size: 16px;
   font-weight: bold;
   font-family: 'Arial Black', sans-serif;
   letter-spacing: 1px;
+}
+
+.rank-number.rank-first {
+  color: #ff7eb3;
 }
 
 .comic-content {
@@ -557,6 +572,53 @@ const getStatusType = (status) => {
     bottom: 10px;
     left: 238px;
   }
+  
+  /* 确保排名和翻页按钮样式不被覆盖 */
+  .comic-rank {
+    position: absolute;
+    bottom: -6px;
+    right: 120px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+  }
+  
+  .carousel-controls {
+    position: absolute;
+    bottom: -13px;
+    right: 20px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .carousel-controls .carousel-btn {
+    position: static !important;
+    transform: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: #333 !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    z-index: 3 !important;
+  }
+  
+  .carousel-controls .carousel-btn:hover {
+    background-color: rgba(0,0,0,0.05) !important;
+    transform: scale(1.1) !important;
+  }
+  
+  .carousel-controls .carousel-btn svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
 
   .comic-meta-info {
     display: flex;
@@ -586,7 +648,7 @@ const getStatusType = (status) => {
   }
 
   .comic-creator {
-    font-size: 13px;
+    font-size: 16px;
     color: #999;
     margin-top: 10px;
   }
@@ -596,41 +658,7 @@ const getStatusType = (status) => {
   font-weight: 500;
 }
 
-.carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: #fff;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 3;
-}
-
-.carousel-btn:hover {
-  background-color: rgba(255,126,179,0.3);
-  transform: translateY(-50%) scale(1.1);
-}
-
-.carousel-btn.prev {
-  left: 20px;
-}
-
-.carousel-btn.next {
-  right: 20px;
-}
-
-.carousel-btn svg {
-  width: 24px;
-  height: 24px;
-}
+/* 移除顶部居中的轮播按钮样式，使用底部的.carousel-controls样式 */
 
 /* 暗色主题适配 */
 html.el-theme-dark .hot-comic-carousel {
