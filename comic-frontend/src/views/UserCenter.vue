@@ -789,7 +789,7 @@ html.el-theme-dark .content-tabs {
 .recent-comic-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 20px;
+  gap: 15px;
 }
 
 .comic-item {
@@ -797,7 +797,7 @@ html.el-theme-dark .content-tabs {
   text-align: center;
   transition: all 0.3s ease;
   border-radius: 8px;
-  padding: 10px;
+  padding: 4px;
   background-color: #fff;
   border: 1px solid #f0f0f0;
 }
@@ -812,8 +812,8 @@ html.el-theme-dark .content-tabs {
   width: 100%;
   height: 180px;
   overflow: hidden;
-  border-radius: 8px;
-  margin-bottom: 12px;
+  border-radius: 6px;
+  margin-bottom: 0;
   border: 1px solid #f0f0f0;
 }
 
@@ -829,13 +829,15 @@ html.el-theme-dark .content-tabs {
 }
 
 .comic-title {
-  font-size: 14px;
+  font-size: 12px;
   color: #333;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   margin: 0;
   font-weight: 500;
+  line-height: 1.1;
+  padding-top: 2px;
 }
 
 .comic-item:hover .comic-title {
@@ -865,8 +867,8 @@ html.el-theme-dark .content-tabs {
 .history-item-content {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 20px;
+  gap: 8px;
+  padding: 12px;
 }
 
 .history-cover {

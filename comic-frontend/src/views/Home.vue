@@ -367,7 +367,7 @@ const getStatusType = (status) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 /* 链接样式覆盖 */
@@ -470,7 +470,7 @@ const getStatusType = (status) => {
 
 .carousel-container {
   position: relative;
-  height: 400px;
+  height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -479,7 +479,7 @@ const getStatusType = (status) => {
 .carousel-item {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 10px;
   width: 100%;
   transition: opacity 0.5s ease;
 }
@@ -502,7 +502,7 @@ const getStatusType = (status) => {
 .comic-content {
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 20px;
   width: 100%;
   position: relative;
 }
@@ -527,8 +527,8 @@ const getStatusType = (status) => {
   width: 220px;
   height: 320px;
   object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  border-radius: 4px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -545,17 +545,17 @@ const getStatusType = (status) => {
   }
 
   .comic-main-title {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 800;
     margin-top: -160px;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
     color: #333;
   }
 
   .comic-creator-wrapper {
     position: absolute;
-    bottom: 20px;
-    left: 260px;
+    bottom: 10px;
+    left: 238px;
   }
 
   .comic-meta-info {
@@ -575,20 +575,20 @@ const getStatusType = (status) => {
   }
 
   .comic-description {
-    font-size: 16px;
-    line-height: 1.8;
+    font-size: 14px;
+    line-height: 1.5;
     color: #666;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     display: -webkit-box;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
   .comic-creator {
-    font-size: 14px;
+    font-size: 13px;
     color: #999;
-    margin-top: 20px;
+    margin-top: 10px;
   }
 
 .creator-name {
