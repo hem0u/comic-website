@@ -1,15 +1,28 @@
 <template>
   <div class="home-container">
-    <!-- 热门新漫画轮播 -->
+    <!-- 热门漫画轮播 -->
     <div class="hot-comic-carousel">
-      <div class="section-header">
-        <h2 class="section-title">热门新漫画</h2>
-      </div>
+      <h2 class="section-title">热门漫画</h2>
       <div v-if="topComics.length === 0" class="empty-placeholder">
         <span class="empty-text">暂无热门榜数据</span>
       </div>
-      <div v-else class="carousel-container">
-        <div class="carousel-item active" v-for="(comic, index) in topComics.slice(0, 10)" :key="comic.id" :class="{ 'active': currentSlide === index }" v-show="currentSlide === index">
+      <div v-else class="carousel-container" 
+           @mousedown="handleMouseDown"
+           style="cursor: grab; user-select: none; position: relative; height: 350px;">
+        <div class="carousel-item active" v-for="(comic, index) in topComics.slice(0, 10)" :key="comic.id" 
+             :class="{ 'active': currentSlide === index }" 
+             :style="{ 
+               cursor: 'grab',
+               position: 'absolute',
+               top: 0,
+               left: 0,
+               width: '100%',
+               height: '100%',
+               opacity: currentSlide === index ? 1 : 0,
+               transition: 'opacity 0.5s ease-in-out, transform 0.5s ease-in-out',
+               transform: getSlideTransform(index),
+               zIndex: currentSlide === index ? 1 : 0
+             }">
           <div class="comic-content">
             <div class="comic-cover-grayscale">
               <img :src="comic.cover || 'https://picsum.photos/300/400'" :alt="comic.title" class="cover-image" />
@@ -45,6 +58,45 @@
             </button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- 最近更新 -->
+    <div class="recent-updates-section">
+      <div class="section-header">
+        <h2 class="section-title">最近更新</h2>
+        <el-link @click="$router.push('/comic-list')">查看全部</el-link>
+      </div>
+      <div class="comic-grid">
+        <div v-if="recentUpdates.length === 0" class="empty-placeholder">
+          <span class="empty-text">暂无最近更新数据</span>
+        </div>
+        <el-card
+            v-else
+            v-for="comic in recentUpdates"
+            :key="comic.id"
+            class="comic-card"
+            shadow="hover"
+            @click="$router.push(`/comic-read/${comic.id}`)"
+        >
+          <div class="comic-cover-container">
+            <img
+                :src="comic.cover || 'https://picsum.photos/300/400'"
+                :alt="comic.title"
+                class="comic-cover"
+                loading="lazy"
+            >
+          </div>
+          <div class="comic-info">
+            <h3 class="comic-title">{{ comic.title }}</h3>
+            <p class="comic-author">作者: {{ comic.authorName || '未知作者' }}</p>
+            <div class="comic-status">
+              <el-tag :type="getStatusType(comic.status)">
+                {{ getStatusText(comic.status) }}
+              </el-tag>
+            </div>
+          </div>
+        </el-card>
       </div>
     </div>
 
@@ -147,7 +199,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { getCategoryList, getComicList } from '../api/comic';
 import { ElMessage, ElTag, ElCard, ElLink, ElButton } from 'element-plus';
 
@@ -155,15 +207,22 @@ const categoryList = ref([]);
 const featuredComics = ref([]);
 const latestComics = ref([]);
 const topComics = ref([]);
+const recentUpdates = ref([]);
 const loading = ref(true);
 const currentSlide = ref(0);
+
+// 鼠标拖动相关变量
+const isDragging = ref(false);
+const startX = ref(0);
+const currentX = ref(0);
 
 onMounted(() => {
   Promise.all([
     loadCategories(),
     loadFeaturedComics(),
     loadLatestComics(),
-    loadTopComics()
+    loadTopComics(),
+    loadRecentUpdates()
   ]).finally(() => {
     loading.value = false;
   });
@@ -224,13 +283,70 @@ const goToComicDetail = (comicId) => {
   window.location.href = `/comic-read/${comicId}`;
 };
 
+// 轮播逻辑 - 重新实现为简单直观的版本
+
+// 上一张函数：点击左箭头(←)时，显示上一张内容
 const prevSlide = () => {
+  // 减少索引，显示上一张
   currentSlide.value = (currentSlide.value - 1 + topComics.value.length) % topComics.value.length;
 };
 
+// 下一张函数：点击右箭头(→)时，显示下一张内容
 const nextSlide = () => {
+  // 增加索引，显示下一张
   currentSlide.value = (currentSlide.value + 1) % topComics.value.length;
 };
+
+// 获取轮播项的变换样式 - 简化实现
+const getSlideTransform = (index) => {
+  // 简化计算：只关注当前显示的项
+  if (index === currentSlide.value) {
+    return 'translateX(0%)';
+  }
+  // 其他项根据它们与当前项的相对位置进行定位
+  return `translateX(${index < currentSlide.value ? '-100%' : '100%'})`;
+};
+
+// 鼠标拖动事件处理 - 确保与按钮操作保持一致
+const handleMouseDown = (e) => {
+  isDragging.value = true;
+  startX.value = e.clientX;
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+};
+
+const handleMouseMove = (e) => {
+  if (!isDragging.value) return;
+  currentX.value = e.clientX;
+};
+
+const handleMouseUp = () => {
+  if (isDragging.value) {
+    // 计算拖动距离
+    const dragDistance = currentX.value - startX.value;
+    
+    // 拖动距离超过阈值时执行翻页
+    if (Math.abs(dragDistance) > 50) {
+      if (dragDistance > 0) {
+        // 向右拖动：显示上一张，调用prevSlide()
+        prevSlide();
+      } else {
+        // 向左拖动：显示下一张，调用nextSlide()
+        nextSlide();
+      }
+    }
+    
+    isDragging.value = false;
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  }
+};
+
+// 组件卸载时清理事件监听
+onUnmounted(() => {
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', handleMouseUp);
+});
 
 const getRankClass = (rank) => {
   if (rank === 1) return 'rank-first';
@@ -249,6 +365,28 @@ const getStatusType = (status) => {
   if (status === 1) return 'success';
   if (status === 0) return 'primary';
   return 'info';
+};
+
+const loadRecentUpdates = async () => {
+  try {
+    // 尝试获取更多漫画，然后在前端过滤当日更新的漫画
+    const res = await getComicList({ page: 1, size: 50, sort: 'updateTime', order: 'desc' });
+    if (res.code === 200) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // 过滤出当日更新的漫画
+      recentUpdates.value = res.data?.list.filter(comic => {
+        const updateTime = new Date(comic.updateTime || comic.createTime);
+        return updateTime >= today;
+      }) || [];
+    } else {
+      ElMessage.error(res.msg || '获取最近更新漫画失败');
+    }
+  } catch (e) {
+    console.error('获取最近更新漫画失败', e);
+    ElMessage.error('获取最近更新漫画失败');
+  }
 };
 </script>
 
@@ -388,7 +526,7 @@ const getStatusType = (status) => {
 /* 热门新漫画轮播样式 */
 .hot-comic-carousel {
   margin-bottom: 40px;
-  padding: 30px;
+  padding: 0 0 30px 0;
   background-color: #fff; /* 和外部容器背景颜色完全一致 */
   border-radius: 16px;
   position: relative;
@@ -478,25 +616,36 @@ const getStatusType = (status) => {
 }
 
 .carousel-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  transition: opacity 0.5s ease;
-}
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    opacity: 0;
+    z-index: 0;
+  }
+  
+  .carousel-item.active {
+    opacity: 1;
+    z-index: 1;
+  }
 
 .comic-rank {
   position: absolute;
-  bottom: 20px;
+  bottom: 20px !important;
   right: 100px;
-  z-index: 2;
+  z-index: 100;
 }
 
 .carousel-controls {
   position: absolute;
-  bottom: 20px;
+  bottom: 11px !important;
   right: 20px;
-  z-index: 2;
+  z-index: 100;
   display: flex;
   align-items: center;
   gap: 10px;
